@@ -1,0 +1,32 @@
+{
+  "name": "order_management",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sairaj",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^1.0.3",
+    "body-parser": "^1.18.3",
+    "consign": "^0.1.6",
+    "cors": "^2.8.4",
+    "express": "^4.16.4",
+    "jsonwebtoken": "^8.3.0",
+    "module-alias": "^2.1.0",
+    "mongoose": "^5.3.5",
+    "morgan": "^1.9.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0"
+  },
+
+  "_moduleAliases": {
+    "@root": ".",
+    "@OrderManager": "./services/OrderManagerAPI",
+    "@OrderManagerModels": "./services/OrderManagerAPI/app/models",
+    "@OrderManagerAPI": "./services/OrderManagerAPI/config/app.js",
+    "@config": "./services/OrderManagerAPI/config/index.js"
+  }
+}
