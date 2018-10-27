@@ -9,4 +9,6 @@ module.exports = (app) => {
      .get(passport.authenticate('jwt', config.session),  api.index(models.User, app.get('budgetsecret')));
   app.route('/api/v1/signup')
      .post(api.signup(models.User));
+  app.route('/api/v1/user')
+  .put(api.edit(models.User));      
 }
