@@ -10,7 +10,13 @@ import colors from 'vuetify/es5/util/colors'
 import('../node_modules/vuetify/dist/vuetify.min.css')
 
 Vue.use(VueCookie)
-Vue.use(Vuetify)
+Vue.use(Vuetify,{
+  theme: {
+    primary: colors.indigo, // #E53935
+    secondary: colors.red.lighten4, // #FFCDD2
+    accent: colors.indigo.base // #3F51B5
+  }
+})
 
 Vue.config.productionTip = false
 Authentication.checkAuthentication()

@@ -7,6 +7,7 @@ import * as Auth from '@/components/pages/Authentication'
 import Authentication from '@/components/pages/Authentication/Authentication'
 import Home from '@/components/pages/Home'
 import User from '@/components/pages/Users'
+import Product from '@/components/pages/Product'
 // Global components
 
 import Header from '@/components/Header'
@@ -42,6 +43,18 @@ const router = new Router({
       name: 'user',
       components: {
         default: User,
+        header: Header,
+        foter:Footer
+      },
+      meta: {
+        requiredAuth: true
+      }
+    },
+    {
+      path: '/product',
+      name: 'product',
+      components: {
+        default: Product,
         header: Header,
         foter:Footer
       },
