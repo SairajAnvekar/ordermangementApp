@@ -65,7 +65,7 @@
                   </v-list-tile-content>
                 </v-list-tile>
 
-               
+
 
                 <v-list-tile avatar>
                   <v-list-tile-action>
@@ -85,39 +85,32 @@
 
 
 
-        <v-btn  color="indigo" fab dark  absolute top left @click="create()">
+        <v-btn color="indigo" fab dark absolute top left @click="create()">
           <v-icon dark>group_add</v-icon>
         </v-btn>
-      
 
 
 
-				<v-card>
-					<v-card-title>
-						Users
-						<v-spacer></v-spacer>
-						<v-text-field
-							v-model="search"
-							append-icon="search"
-							label="Search"
-							single-line
-							hide-details
-						></v-text-field>
-					</v-card-title>
-				<v-data-table :headers="headers" :items="usersList"  item-key="name" :search="search" class="elevation-1">
-					<template slot="items" slot-scope="props">
-						<td>{{ props.item.username }}</td>
-						<td>{{ props.item.email }}</td>
-						<td>{{ props.item.role.toUpperCase() }}</td>
-						<td class="text-xs-center">       
-							<v-btn  v-on:click="editEmploye(props.item)" outline  fab color="indigo">
-								<v-icon>edit</v-icon>
-							</v-btn>
-						</td>
-						
-					</template>
-				</v-data-table>
-				</v-card>
+
+        <v-card>
+          <v-card-title>
+            Users
+            <v-spacer></v-spacer>
+            <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
+          </v-card-title>
+          <v-data-table :headers="headers" :items="usersList" item-key="name" :search="search" class="elevation-1">
+            <template slot="items" slot-scope="props">
+              <td>{{ props.item.username }}</td>
+              <td>{{ props.item.email }}</td>
+              <td>{{ props.item.role.toUpperCase() }}</td>
+              <td class="text-xs-center">
+                <v-btn v-on:click="editEmploye(props.item)" outline fab color="indigo">
+                  <v-icon>edit</v-icon>
+                </v-btn>
+              </td>
+            </template>
+          </v-data-table>
+        </v-card>
 
       </v-container>
       <app-footer></app-footer>
@@ -134,9 +127,9 @@
       return {
         validated: 1,
         loginPage: false,
-				dialog2: false,
-				search:'',
-				usersList: [],
+        dialog2: false,
+        search: '',
+        usersList: [],
         role: this.$cookie.get('role'),
         employe: {
           username: '',
@@ -150,7 +143,7 @@
           },
           role: 'employe'
         },
-   headers: [{
+        headers: [{
             text: 'Username',
             align: 'center',
             sortable: false,
@@ -161,12 +154,12 @@
             align: 'center',
             value: 'Action'
           },
-            {
+          {
             text: 'Role',
             align: 'center',
             value: 'Role'
-					},
-					 {
+          },
+          {
             text: 'Edit',
             align: 'center',
             value: 'Edit'
@@ -176,7 +169,7 @@
       }
     },
     mounted() {
-			this.getAllUsers()
+      this.getAllUsers()
     },
     methods: {
       create() {
@@ -217,26 +210,26 @@
         }).then(({
           data
         }) => (
-					this.usersList = data,
+          this.usersList = data,
           console.log(data)
         ))
-			},
-			
-			editEmploye(emp) {
-				delete emp.password;
-				this.dialog2 = true;
-				this.employe = emp;
-			},
+      },
 
-		update(context) {
-			Axios.put(`${apiURL}/api/v1/user`, this.employe, {
-				headers: {
-					'Authorization': Authentication.getAuthenticationHeader(this)
-				}
-			}).then(({
-				data
-			}) => (console.log(data)))
-		},
+      editEmploye(emp) {
+        delete emp.password;
+        this.dialog2 = true;
+        this.employe = emp;
+      },
+
+      update(context) {
+        Axios.put(`${apiURL}/api/v1/user`, this.employe, {
+          headers: {
+            'Authorization': Authentication.getAuthenticationHeader(this)
+          }
+        }).then(({
+          data
+        }) => (console.log(data)))
+      },
 
 
     }

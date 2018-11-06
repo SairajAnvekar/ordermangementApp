@@ -144,8 +144,19 @@
         <v-btn color="indigo" fab dark absolute top left @click="create()">
           <v-icon dark>group_add</v-icon>
         </v-btn>
-   
-        <v-data-table :headers="headers" :items="productList" item-key="name"  class="elevation-1">
+        
+        	<v-card-title>
+						Product
+						<v-spacer></v-spacer>
+						<v-text-field
+							v-model="search"
+							append-icon="search"
+							label="Search"
+							single-line
+							hide-details
+						></v-text-field>
+					</v-card-title>
+        <v-data-table :headers="headers" :items="productList" item-key="name" :loading="productLoading" :search="search" class="elevation-1">
           <template slot="items" slot-scope="props">
             <td>{{ props.item.code }}</td>
             <td>{{ props.item.name }}</td>
@@ -176,6 +187,8 @@
         loginPage: false,
         productDialog: false,
         dialog: false,
+        search:'',
+        productLoading:true,
         productList: [],
         categoryList: [],
         categoryId: '',
@@ -208,7 +221,7 @@
           {
             text: 'Name',
             align: 'center',
-            value: 'Action'
+            value: 'name'
           },
           {
             text: 'Desc',
@@ -218,7 +231,7 @@
           {
             text: 'Price',
             align: 'center',
-            value: 'Role'
+            value: 'price'
           },
            {
             text: 'Edit',
@@ -256,6 +269,7 @@
           data
         }) => (
           this.productList = data,
+          this.productLoading = false,
           console.log(data)
         ))
       },
@@ -326,7 +340,7 @@ this.$set(this.product, 'size', {
           }
         }).then(({
           data
-        }) => (console.log(data), this.getAllProduct()))
+        }) => (console.log(data), this.productDialog= false, this.getAllProduct()))
       },
 
       addCategory() {

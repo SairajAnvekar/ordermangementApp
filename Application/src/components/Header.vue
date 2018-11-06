@@ -30,6 +30,16 @@
             </v-list-tile-content>
           </v-list-tile>  
 
+             <v-list-tile @click="goToLink(`/order`)">
+            <v-list-tile-action>
+              <v-icon>weekend</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>            
+                <v-list-tile-title>Order</v-list-tile-title>             
+            </v-list-tile-content>
+          </v-list-tile>  
+
+
         </v-list>
     </v-navigation-drawer> 
     <v-toolbar color="indigo" dark fixed app>
