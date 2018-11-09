@@ -17,11 +17,11 @@
     "jsonwebtoken": "^8.3.0",
     "module-alias": "^2.1.0",
     "mongoose": "^5.3.5",
+    "mongoose-dateonly": "^1.0.6",
     "morgan": "^1.9.1",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0"
   },
-
   "_moduleAliases": {
     "@root": ".",
     "@OrderManager": "./services/OrderManagerAPI",

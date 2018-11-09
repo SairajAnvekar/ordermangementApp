@@ -14,8 +14,9 @@
               <v-toolbar-title>Add Order</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark flat v-if="!employe._id" @click.native="save()">Save</v-btn>
-                <v-btn dark flat v-if="employe._id" @click.native="update()">Update</v-btn>
+                <v-btn dark flat v-if="!order._id" @click.native="save()">Save</v-btn>
+				<v-btn dark flat v-if="needSetup" @click.native="setup()">setup</v-btn>
+                <v-btn dark flat v-if="order._id" @click.native="update()">Update</v-btn>
               </v-toolbar-items>
             </v-toolbar>
 
@@ -26,6 +27,10 @@
               <v-container grid-list-md>
                 <v-form ref="form">
                   <v-layout wrap>
+				  <v-flex xs12 sm6 md4>
+                      <v-text-field label="Order No" v-model="order.order_no" disabled ></v-text-field>
+                    </v-flex>
+					 <v-spacer></v-spacer>
                     <v-flex xs12 sm6 md4>
                       <v-text-field label="Customer Name " v-model="order.customer_name"></v-text-field>
                     </v-flex>
@@ -35,14 +40,24 @@
                     </v-flex>
                     <v-flex xs9 sm6 md3>
                       <v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition"
-                        offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="order.dateOfSale">
-                        <v-text-field slot="activator" label="Date Of Delivery" v-model="order.dateOfSale" required
+                        offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="order.delivery_date">
+                        <v-text-field slot="activator" label="Date Of Delivery" v-model="order.delivery_date" required
                           prepend-icon="event" readonly></v-text-field>
-                        <v-date-picker v-model="order.dateOfSale" @change="saveDate" no-title scrollable>
+                        <v-date-picker v-model="order.delivery_date" @change="saveDate" no-title scrollable>
                         </v-date-picker>
                       </v-menu>
 
                     </v-flex>
+					
+					
+					<v-flex xs12 sm6 md3 >
+						<v-select
+						:items="statusItem"
+						label="Status"
+						v-model="order.status"
+						
+						></v-select>
+					</v-flex>
 
                     <v-btn fab dark small @click.native="addItem()">
                       <v-icon dark>add</v-icon>
@@ -124,7 +139,21 @@
 
         <v-list>
           <v-layout row wrap header>
-            <h1>Welcome To Inventory Management</h1>
+              <v-data-table :headers="headers" :items="orderList" item-key="name" :loading="orderLoading" class="elevation-1">
+          <template slot="items" slot-scope="props" :pagination.sync="pagination">
+            <td>{{ props.item.order_no }}</td>
+            <td>{{ props.item.customer_name }}</td>
+            <td>{{ props.item.grand_total }}</td>
+            <td>{{ props.item.order_date }}</td>
+			<td>{{ props.item.delivery_date }}</td>
+			<td>{{ props.item.status }}</td>  
+ <td class="text-xs-center">       
+							<v-btn  v-on:click="editOrder(props.item)" outline  small fab color="indigo">
+								<v-icon>edit</v-icon>
+							</v-btn>
+						</td>			
+          </template>
+        </v-data-table>
           </v-layout>
         </v-list>
       </v-container>
@@ -136,6 +165,8 @@
   import Axios from 'axios'
   import Authentication from '@/components/pages/Authentication'
   import APIurlConfig from '../../apiConfig'
+	import moment from 'moment'
+	import DateOnly from 'dateonly'
   const apiURL = APIurlConfig.API_URL // 'http://localhost:3001'
   export default {
     data() {
@@ -145,10 +176,55 @@
         loginPage: false,
         employe: {},
         productList: [],
-         
+		needSetup: true,
+		orderList :[],
+		pagination: {
+        sortBy: 'order_no',
+		descending : false
+        },
+		statusItem:['pending','ready','delivered'],
+ headers: [{
+            text: 'Order No',
+            align: 'center',           
+            value: 'order_no',
+			sortable: false,
+          },
+          {
+            text: 'Customer Name',
+            align: 'center',
+            value: 'name'
+          },
+          {
+            text: 'Grand Total',
+            align: 'center',
+            value: 'grand_total'
+          },
+          {
+            text: 'Order Date',
+            align: 'center',
+            value: 'order_date'
+          },
+           {
+            text: 'Deleivery Date',
+            align: 'center',
+            value: 'deleiver_date'
+          },
+		   {
+            text: 'Status',
+            align: 'center',
+            value: 'status'
+          },
+		  {
+            text: 'Action',
+            align: 'center',
+            value: 'action'
+          }
+        ],        
         order: {
           total:0,
           taxAmt:0,
+		  tax:0,
+		  status:'pending',
           grand_total:0,
           orderDetails: [{
           product_id: '',
@@ -207,7 +283,8 @@
       }
     },
     mounted() {
-      this.getAllProduct()
+      this.getAllProduct();
+      this.getAllOrder()
     },
     methods: {
       saveDate(date) {
@@ -216,7 +293,25 @@
 
 
        save() {
-        Axios.post(`${apiURL}/api/v1/order`, this.order)
+         this.order.created_user = "sai";
+        Axios.post(`${apiURL}/api/v1/order`, {order: this.order})
+          .then(({
+          data
+        })  => {
+		   console.log(data)
+		   this.order=data.data;
+		   this.getAllOrder();
+          
+          }).catch(({
+            response: {
+              data
+            }
+          }) => {})
+      },
+	  
+	      setup() {
+         this.order.created_user = "sai";
+        Axios.post(`${apiURL}/api/v1/setup/ordercounter`, {order: this.order})
           .then(({
             data: {
               token
@@ -229,6 +324,7 @@
             }
           }) => {})
       },
+
 
       activeProduct(item) {
         console.log(item.productId);
@@ -286,6 +382,19 @@
         this.order.grand_total = this.order.total+this.order.taxAmt;
       },
 
+        getAllOrder(context) {
+        Axios.get(`${apiURL}/api/v1/order`, {
+          headers: {
+            'Authorization': Authentication.getAuthenticationHeader(this)
+          }
+        }).then(({
+          data
+        }) => (
+          this.orderList = data,
+		  this.needSetup = data.length > 0 ? false: true,
+          console.log(data)
+        ))},
+
       getAllProduct(context) {
         Axios.get(`${apiURL}/api/v1/product`, {
           headers: {
@@ -299,6 +408,22 @@
           console.log(data)
         ))
       },
+	  
+	    update(context) {
+        Axios.put(`${apiURL}/api/v1/order`,  {order: this.order}, {
+          headers: {
+            'Authorization': Authentication.getAuthenticationHeader(this)
+          }
+        }).then(({
+          data
+        }) => (console.log(data)))
+      },
+
+	       editOrder(order) {			
+				this.createOrderDialog = true;
+        this.order = order;
+
+			},
 
     }
   }
