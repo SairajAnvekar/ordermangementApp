@@ -1,8 +1,7 @@
 import Axios from 'axios'
 import router from '@/router'
-//import APIurlConfig from '../../../apiConfig'
-const apiURL = 'http://localhost:3001'// APIurlConfig.API_URL // 'http://localhost:3001'
-
+  import APIurlConfig from '../../../apiConfig'
+  const apiURL = APIurlConfig.API_URL 
 export default {
   user: { authenticated: false },
   authenticate (context, credentials, redirect) {
@@ -10,6 +9,8 @@ export default {
     Axios.post(`${apiURL}/api/v1/auth`, credentials)
       .then(({data}) => {
         context.$cookie.set('token', data.token, '1D')
+		context.$cookie.set('role', data.user.role, '1D')
+		context.$cookie.set('username', data.user.username, '1D')
        /* context.$cookie.set('emp_id', data.user.emp_id, '1D')
         context.$cookie.set('username', data.user.username, '1D')
         context.$cookie.set('role', data.user.role, '1D')

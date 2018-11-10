@@ -3,10 +3,12 @@ const type = mongoose.Schema;
 var DateOnly = require('mongoose-dateonly')(mongoose);
 
 const payments= mongoose.Schema({
-	payment_date: DateOnly,
+	payment_date:{ type: Date,
+        timestamps: true,
+        default: Date.now},
 	amount_paid: Number,
     type:String,
-	by: String,  	
+	mode: String,  	
 });
 const Schema = mongoose.Schema({
     customer_name: {
@@ -35,12 +37,19 @@ const Schema = mongoose.Schema({
         default: Date.now},	
     delivery_date:DateOnly,
     orderDetails:[],
-	paymentDetails:[payments],
+	paymentDetails:[{
+	payment_date:{ type: Date,
+        timestamps: true,
+        default: Date.now},
+	mode: String,
+amount : Number	
+}],
     notes: {
         type: String
     },
     payment:Number,
-    paid_amount: Number    
+    paid_amount: Number,
+    payemt_status: String	
 });
 
 

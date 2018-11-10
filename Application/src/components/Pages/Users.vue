@@ -122,6 +122,7 @@
   import Authentication from '@/components/pages/Authentication'
   import APIurlConfig from '../../apiConfig'
   const apiURL = APIurlConfig.API_URL // 'http://localhost:3001'
+  console.log(apiURL)
   export default {
     data() {
       return {

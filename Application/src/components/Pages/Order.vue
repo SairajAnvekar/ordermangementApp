@@ -15,7 +15,7 @@
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn dark flat v-if="!order._id" @click.native="save()">Save</v-btn>
-				<v-btn dark flat v-if="needSetup" @click.native="setup()">setup</v-btn>
+                <v-btn dark flat v-if="needSetup" @click.native="setup()">setup</v-btn>
                 <v-btn dark flat v-if="order._id" @click.native="update()">Update</v-btn>
               </v-toolbar-items>
             </v-toolbar>
@@ -27,10 +27,10 @@
               <v-container grid-list-md>
                 <v-form ref="form">
                   <v-layout wrap>
-				  <v-flex xs12 sm6 md4>
-                      <v-text-field label="Order No" v-model="order.order_no" disabled ></v-text-field>
+                    <v-flex xs12 sm6 md4>
+                      <v-text-field label="Order No" v-model="order.order_no" disabled></v-text-field>
                     </v-flex>
-					 <v-spacer></v-spacer>
+                    <v-spacer></v-spacer>
                     <v-flex xs12 sm6 md4>
                       <v-text-field label="Customer Name " v-model="order.customer_name"></v-text-field>
                     </v-flex>
@@ -48,16 +48,11 @@
                       </v-menu>
 
                     </v-flex>
-					
-					
-					<v-flex xs12 sm6 md3 >
-						<v-select
-						:items="statusItem"
-						label="Status"
-						v-model="order.status"
-						
-						></v-select>
-					</v-flex>
+
+
+                    <v-flex xs12 sm6 md3>
+                      <v-select :items="statusItem" label="Status" v-model="order.status"></v-select>
+                    </v-flex>
 
                     <v-btn fab dark small @click.native="addItem()">
                       <v-icon dark>add</v-icon>
@@ -111,13 +106,13 @@
                           <tr>
                             <td colspan="4" class="text-xs-right"><strong>Tax</strong></td>
                             <td class="text-xs-right">
-                              <v-text-field v-model="order.tax" @input="calculateTax()" ></v-text-field>
+                              <v-text-field v-model="order.tax" @input="calculateTax()"></v-text-field>
                             </td>
                             <td class="text-xs-right">{{ order.taxAmt }}</td>
                           </tr>
                           <tr>
                             <td colspan="5" class="text-xs-right"><strong>Total Amount</strong></td>
-                            <td  class="text-xs-right">{{ order.grand_total }}</td>
+                            <td class="text-xs-right">{{ order.grand_total }}</td>
                           </tr>
 
                         </template>
@@ -125,6 +120,9 @@
                     </v-flex>
                   </v-layout>
                 </v-form>
+                <v-btn indigo dark small @click.native="paymentDialog = true">
+                  Payement
+                </v-btn>
               </v-container>
               <small>*indicates required field</small>
 
@@ -132,30 +130,66 @@
 
           </v-card>
         </v-dialog>
+        <v-dialog v-model="paymentDialog" persistent max-width="600px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">Payment</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  {{this.order.paid_amount}}
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field label="Amount*" v-model="payment.amount" required @input="calculateBalance()"></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field label="Balance*" disabled v-model="order.balance" required></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 sm6 md3>
+                    <v-select :items="paymentType" label="Payment Mode" v-model="payment.mode"></v-select>
+                  </v-flex>
+                </v-layout>
+              </v-container>
 
-        <v-btn color="indigo" fab dark absolute top left @click.native="createOrderDialog = true">
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" flat @click.native="paymentDialog = false">Close</v-btn>
+              <v-btn color="blue darken-1" flat @click.native="pay()">Pay</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+
+        <v-btn color="indigo" fab dark absolute top left @click.native="addOrder()">
           <v-icon dark>group_add</v-icon>
         </v-btn>
 
-        <v-list>
-          <v-layout row wrap header>
-              <v-data-table :headers="headers" :items="orderList" item-key="name" :loading="orderLoading" class="elevation-1">
-          <template slot="items" slot-scope="props" :pagination.sync="pagination">
+
+
+
+        <v-card-title>
+          Order
+          <v-spacer></v-spacer>
+          <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
+        </v-card-title>
+        <v-data-table :headers="headers" :search="search" :items="orderList" item-key="name" :loading="orderLoading"
+          class="elevation-1">
+          <template slot="items" slot-scope="props">
             <td>{{ props.item.order_no }}</td>
             <td>{{ props.item.customer_name }}</td>
             <td>{{ props.item.grand_total }}</td>
             <td>{{ props.item.order_date }}</td>
-			<td>{{ props.item.delivery_date }}</td>
-			<td>{{ props.item.status }}</td>  
- <td class="text-xs-center">       
-							<v-btn  v-on:click="editOrder(props.item)" outline  small fab color="indigo">
-								<v-icon>edit</v-icon>
-							</v-btn>
-						</td>			
+            <td>{{ props.item.delivery_date }}</td>
+            <td>{{ props.item.status }}</td>
+            <td class="text-xs-center">
+              <v-btn v-on:click="editOrder(props.item)" outline small fab color="indigo">
+                <v-icon>edit</v-icon>
+              </v-btn>
+            </td>
           </template>
         </v-data-table>
-          </v-layout>
-        </v-list>
+
       </v-container>
       <app-footer></app-footer>
     </v-layout>
@@ -165,29 +199,34 @@
   import Axios from 'axios'
   import Authentication from '@/components/pages/Authentication'
   import APIurlConfig from '../../apiConfig'
-	import moment from 'moment'
-	import DateOnly from 'dateonly'
+  import moment from 'moment'
+  import DateOnly from 'dateonly'
   const apiURL = APIurlConfig.API_URL // 'http://localhost:3001'
   export default {
     data() {
       return {
         validated: 1,
+        search: '',
+        payment: {},
         createOrderDialog: false,
         loginPage: false,
         employe: {},
         productList: [],
-		needSetup: true,
-		orderList :[],
-		pagination: {
-        sortBy: 'order_no',
-		descending : false
+        needSetup: true,
+        orderList: [],
+        orderLoading: true,
+        paymentDialog: false,
+        pagination: {
+          sortBy: 'order_no',
+          descending: false,
         },
-		statusItem:['pending','ready','delivered'],
- headers: [{
+        statusItem: ['pending', 'ready', 'delivered'],
+        paymentType: ['Cash', 'Card', 'Cheque'],
+        headers: [{
             text: 'Order No',
-            align: 'center',           
+            align: 'center',
             value: 'order_no',
-			sortable: false,
+            sortable: false,
           },
           {
             text: 'Customer Name',
@@ -204,38 +243,39 @@
             align: 'center',
             value: 'order_date'
           },
-           {
+          {
             text: 'Deleivery Date',
             align: 'center',
             value: 'deleiver_date'
           },
-		   {
+          {
             text: 'Status',
             align: 'center',
             value: 'status'
           },
-		  {
+          {
             text: 'Action',
             align: 'center',
             value: 'action'
           }
-        ],        
+        ],
         order: {
-          total:0,
-          taxAmt:0,
-		  tax:0,
-		  status:'pending',
-          grand_total:0,
+          total: 0,
+          taxAmt: 0,
+          tax: 0,
+          paid_amount: 0,
+          status: 'pending',
+		  paymentDetails:[],
+          grand_total: 0,
           orderDetails: [{
-          product_id: '',
-          qty: 1,
-          size: {},
-          price: 0,
-          index: 0,
-
-        }],
+            product_id: '',
+            qty: 1,
+            size: {},
+            price: 0,
+            index: 0
+          }],
         },
-       
+
         rules: {
           required: value => !!value || 'Required.',
           required: value => !isNaN(value) || 'Number Required.',
@@ -247,7 +287,7 @@
           }
         },
         numberRule: [(value) => !isNaN(num1) || 'number is required'],
-       
+
         menu: false,
         orderDetailHeader: [{
             text: 'Product',
@@ -291,33 +331,58 @@
         this.$refs.menu.save(date)
       },
 
+	  
+	  addOrder(){
+	  this.order =  {
+          total: 0,
+          taxAmt: 0,
+          tax: 0,
+          paid_amount: 0,
+          status: 'pending',
+		  paymentDetails:[],
+          grand_total: 0,
+          orderDetails: [{
+            product_id: '',
+            qty: 1,
+            size: {},
+            price: 0,
+            index: 0
+          }],
+        };
+		this.createOrderDialog= true;
+		
+	  },
 
-       save() {
-         this.order.created_user = "sai";
-        Axios.post(`${apiURL}/api/v1/order`, {order: this.order})
+      save() {
+        this.order.created_user = "sai";
+        Axios.post(`${apiURL}/api/v1/order`, {
+            order: this.order
+          })
           .then(({
-          data
-        })  => {
-		   console.log(data)
-		   this.order=data.data;
-		   this.getAllOrder();
-          
+            data
+          }) => {
+            console.log(data)
+            this.order = data.data;
+            this.getAllOrder();
+
           }).catch(({
             response: {
               data
             }
           }) => {})
       },
-	  
-	      setup() {
-         this.order.created_user = "sai";
-        Axios.post(`${apiURL}/api/v1/setup/ordercounter`, {order: this.order})
+
+      setup() {
+        this.order.created_user = this.$cookie.get('username');
+        Axios.post(`${apiURL}/api/v1/setup/ordercounter`, {
+            order: this.order
+          })
           .then(({
             data: {
               token
             }
           }) => {
-          
+
           }).catch(({
             response: {
               data
@@ -345,7 +410,7 @@
           product_id: '',
           qty: 1,
           size: {},
-          price: 0,       
+          price: 0,
         });
       },
 
@@ -377,23 +442,26 @@
         this.calculateTax();
       },
 
-      calculateTax() {       
-        this.order.taxAmt= (this.order.tax * this.order.total)/100;         
-        this.order.grand_total = this.order.total+this.order.taxAmt;
+      calculateTax() {
+        this.order.taxAmt = (this.order.tax * this.order.total) / 100;
+        this.order.grand_total = this.order.total + this.order.taxAmt;
       },
 
-        getAllOrder(context) {
-        Axios.get(`${apiURL}/api/v1/order`, {
-          headers: {
-            'Authorization': Authentication.getAuthenticationHeader(this)
-          }
-        }).then(({
-          data
-        }) => (
-          this.orderList = data,
-		  this.needSetup = data.length > 0 ? false: true,
-          console.log(data)
-        ))},
+      getAllOrder(context) {
+        this.orderLoading = true,
+          Axios.get(`${apiURL}/api/v1/order`, {
+            headers: {
+              'Authorization': Authentication.getAuthenticationHeader(this)
+            }
+          }).then(({
+            data
+          }) => (
+            this.orderList = data,
+            this.needSetup = data.length > 0 ? false : true,
+            this.orderLoading = false,
+            console.log(data)
+          ))
+      },
 
       getAllProduct(context) {
         Axios.get(`${apiURL}/api/v1/product`, {
@@ -408,9 +476,11 @@
           console.log(data)
         ))
       },
-	  
-	    update(context) {
-        Axios.put(`${apiURL}/api/v1/order`,  {order: this.order}, {
+
+      update(context) {
+        Axios.put(`${apiURL}/api/v1/order`, {
+          order: this.order
+        }, {
           headers: {
             'Authorization': Authentication.getAuthenticationHeader(this)
           }
@@ -419,11 +489,20 @@
         }) => (console.log(data)))
       },
 
-	       editOrder(order) {			
-				this.createOrderDialog = true;
-        this.order = order;
-
-			},
+      editOrder(order) {
+        this.createOrderDialog = true;
+        this.order = order;	
+      },
+	  
+	  pay(){
+	  this.order.paymentDetails.push(this.payment)
+      console.log(this.order); 
+	  },
+	  
+      calculateBalance() {
+        this.order.balance = this.order.grand_total - (this.order.paid_amount + this.payment.amount);
+        console.log((this.order.paid_amount + this.payment.amount, this.order));
+      }
 
     }
   }
