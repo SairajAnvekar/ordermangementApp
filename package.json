@@ -7,6 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Sairaj",
+  "engines": {
+    "node": "8.12.0",
+	"npm": "6.4"
+  }
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^1.0.3",
