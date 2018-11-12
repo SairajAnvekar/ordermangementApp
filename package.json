@@ -29,8 +29,8 @@
   "_moduleAliases": {
     "@root": ".",
     "@OrderManager": "./Services/OrderManagerAPI",
-    "@OrderManagerModels": "./Services/OrderManagerAPI/app/models",
-    "@OrderManagerAPI": "./Services/OrderManagerAPI/config/app.js",
-    "@config": "./Services/OrderManagerAPI/config/index.js"
+    "@OrderManagerModels": "./services/OrderManagerAPI/app/models",
+    "@OrderManagerAPI": "./services/OrderManagerAPI/config/app.js",
+    "@config": "./services/OrderManagerAPI/config/index.js"
   }
 }
