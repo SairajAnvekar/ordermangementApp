@@ -16,13 +16,20 @@ const Schema = mongoose.Schema({
         required: true
     },
     catCode:String,
-    code: String,
+    code: {
+        type: String,        
+        required: true
+    },
     price:Number,
     hasSize:Boolean,
     size:{
         height: Number,
         width: Number,
         rate: Number,
+    },
+	inactive: {
+        type: Boolean,
+        default: false
     }
 }); 
 

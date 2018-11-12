@@ -5,7 +5,7 @@ const api = {};
 api.index = (Product, BudgetToken) => (req, res) => {
     const token = BudgetToken;
     if (token) {
-        Product.find({}, (error, products) => {
+        Product.find({inactive:false}, (error, products) => {
             if (error) throw error;
             res.status(200).json(products);
         });
@@ -54,5 +54,11 @@ api.edit = (Product) => (req, res) => {
     });
   }
 
+	api.deleteProduct = (Product) => (req, res) => {
+		Product.findOneAndUpdate({ _id: req.body._id },{inactive:true}, (error, order) => {
+		  if (error) res.status(400).json(error);
+		  res.status(200).json(order);
+		})   
+	}
 
 module.exports = api;

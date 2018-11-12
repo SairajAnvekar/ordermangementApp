@@ -8,5 +8,8 @@ module.exports = (app) => {
   app.route('/api/v1/product')
      .post(api.add(models.Product));
   app.route('/api/v1/product')
-  .put(api.edit(models.Product));      
+  .put(api.edit(models.Product));    
+  app.route('/api/v1/product/delete')
+  .put(api.deleteProduct(models.Product)); 
+  
 }

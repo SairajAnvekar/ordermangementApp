@@ -24,25 +24,25 @@
             <v-card-text>
 
               <v-container grid-list-md>
-                <v-form ref="form">
+                <v-form ref="form" v-model="valid">
                   <v-layout wrap>
                     <v-flex xs12 sm6 md4>
                       <v-text-field label="Order No" v-model="order.order_no" disabled ></v-text-field>
                     </v-flex>
                     <v-spacer></v-spacer>
                     <v-flex xs12 sm6 md4>
-                      <v-text-field label="Customer Name " v-model="order.customer_name" :readonly="view"></v-text-field>
+                      <v-text-field label="Customer Name " required v-model="order.customer_name"  :rules="[rules.required]" :readonly="view"></v-text-field>
                     </v-flex>
 
                     <v-flex xs12 sm6 md4>
-                      <v-text-field label="Customer Phone No " v-model="order.customer_tel" :readonly="view"></v-text-field>
+                      <v-text-field label="Customer Phone No " required v-model="order.customer_tel"  :rules="[rules.required]"  :readonly="view"></v-text-field>
                     </v-flex>
                     <v-flex xs9 sm6 md3>
                       <v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition"
                         offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="order.delivery_date">
                         <v-text-field slot="activator" label="Date Of Delivery" v-model="order.delivery_date" required
                           prepend-icon="event" readonly></v-text-field>
-                        <v-date-picker v-model="order.delivery_date" @change="saveDate" no-title scrollable>
+                        <v-date-picker required :rules="[rules.required]"  v-model="order.delivery_date" @change="saveDate" no-title scrollable>
                         </v-date-picker>
                       </v-menu>
 
@@ -50,7 +50,7 @@
 
 
                     <v-flex xs12 sm6 md3>
-                      <v-select :items="statusItem" :readonly="view" label="Status" v-model="order.status"></v-select>
+                      <v-select :items="statusItem" required :readonly="view" label="Status" v-model="order.status" :rules="[rules.required]" ></v-select>
                     </v-flex>
 
                     <v-flex xs12 sm12 md12>
@@ -58,7 +58,7 @@
                         class="elevation-1 order">
                         <template slot="items" slot-scope="props">
                           <td>
-                            <v-select :items="productList" v-model="props.item.productId" item-value="_id" item-text="name"
+                            <v-select  required :items="productList" v-model="props.item.productId" item-value="_id" item-text="name"
                               autocomplete single-line @input="activeProduct(props.item) " :readonly="view"></v-select>
                           </td>
                           <td>
@@ -353,6 +353,7 @@
       return {
         validated: 1,
         search: '',
+		valid:true,
         payment: {
 		amount: 0,
 		mode:'Cash'
@@ -364,7 +365,7 @@
         needSetup: true,
         orderList: [],
         orderLoading: true,
-        view: true,
+        view: false,
         paymentDialog: false,
         pagination: {
           sortBy: 'order_no',
@@ -535,7 +536,9 @@
       },
 
       save() {
-        this.order.created_user = "sai";
+	  console.log(this.$refs.form);
+	   if (this.$refs.form.validate()) {
+        this.order.created_user = this.$cookie.get('username');
         Axios.post(`${apiURL}/api/v1/order`, {
             order: this.order
           })
@@ -551,7 +554,7 @@
               data
             }
           }) => {})
-      },
+      }},
 
       setup() {
         this.order.created_user = this.$cookie.get('username');

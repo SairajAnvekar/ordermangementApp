@@ -74,20 +74,20 @@
 
                     <div style="display:flex" v-if="product.hasSize">
                       <v-flex xs12 sm6 md3>
-                        <v-text-field label="Height" v-model="product.size.height" required></v-text-field>
+                        <v-text-field label="Height" v-model="product.size.height" type="number" required></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm6 md3>
-                        <v-text-field label="Width" v-model="product.size.width" required></v-text-field>
+                        <v-text-field label="Width" v-model="product.size.width" type="number" required></v-text-field>
                       </v-flex>
 
                       <v-flex xs12 sm6 md3>
-                        <v-text-field label="Unit Rate" v-model="product.size.rate" required></v-text-field>
+                        <v-text-field label="Unit Rate" v-model="product.size.rate"  type="number"required></v-text-field>
                       </v-flex>
 
                     </div>
                     <v-flex xs12>
                       <v-flex md3>
-                        <v-text-field label="Product Price" v-model="product.price" required></v-text-field>
+                        <v-text-field label="Product Price" v-model="product.price" type="number" required></v-text-field>
                       </v-flex>
                     </v-flex>
 
@@ -155,10 +155,20 @@
               <v-btn v-on:click="editProduct(props.item)" outline fab  small color="indigo">
                 <v-icon>edit</v-icon>
               </v-btn>
+			    <v-btn v-on:click="deleteProduct(props.item)" outline fab  small color="indigo">
+                <v-icon>remove</v-icon>
+              </v-btn>			  
             </td>
+			
 
           </template>
         </v-data-table>
+		  <v-snackbar top="top"
+                    color="red lighten-1"
+                    v-model="snackbar">
+                    {{ message }}
+                    </v-snackbar>
+		
       </v-container>
       <app-footer></app-footer>
     </v-layout>
@@ -172,6 +182,8 @@
   export default {
     data() {
       return {
+	  snackbar :false,
+	  message:'test',
         validated: 1,
         loginPage: false,
         productDialog: false,
@@ -250,6 +262,7 @@
     },
     methods: {
       getAllProduct(context) {
+	  this.productLoading = true;
         Axios.get(`${apiURL}/api/v1/product`, {
           headers: {
             'Authorization': Authentication.getAuthenticationHeader(this)
@@ -282,7 +295,7 @@
             width: 0,
             rate: 0
           })
-
+		this.snackbar =true;
 
         }
       },
@@ -298,13 +311,18 @@
             data: {
               token
             }
-          }) => {
-            //this.getAllUsers();
-            console.log(data);
+          }) => {                 
             this.productResult.status = true;
-            this.productResult.message = "Sucessfuly Added";
-            this.productResult.type = "sucess"
+            this.productResult.message = "Succesfuly Added";
+            this.productResult.type = "succes";
             this.getAllProduct();
+			this.product = {
+				size: {
+				height: 0,
+				width: 0,
+				rate: 0
+				}
+			};
           }).catch(({
             response: {
               data
@@ -338,6 +356,17 @@
           data
         }) => (console.log(data), this.productDialog = false, this.getAllProduct()))
       },
+	  
+	    deleteProduct(product) {
+        Axios.put(`${apiURL}/api/v1/product/delete`,product, {
+          headers: {
+            'Authorization': Authentication.getAuthenticationHeader(this)
+          }
+        }).then(({
+          data
+        }) => (console.log(data), this.productDialog = false, this.getAllProduct()))
+      },
+
 
       addCategory() {
         Axios.post(`${apiURL}/api/v1/category`, this.category)
