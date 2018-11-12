@@ -28,7 +28,7 @@
   },
   "_moduleAliases": {
     "@root": ".",
-    "@OrderManager": "./Services/OrderManagerAPI",
+    "@OrderManager": "./services/OrderManagerAPI",
     "@OrderManagerModels": "./services/OrderManagerAPI/app/models",
     "@OrderManagerAPI": "./services/OrderManagerAPI/config/app.js",
     "@config": "./services/OrderManagerAPI/config/index.js"
