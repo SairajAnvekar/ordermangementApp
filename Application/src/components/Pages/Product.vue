@@ -152,7 +152,7 @@
             <td>{{ props.item.description }}</td>
             <td>{{ props.item.price }}</td>
             <td class="text-xs-center">
-              <v-btn v-on:click="editProduct(props.item)" outline fab color="indigo">
+              <v-btn v-on:click="editProduct(props.item)" outline fab  small color="indigo">
                 <v-icon>edit</v-icon>
               </v-btn>
             </td>

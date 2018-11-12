@@ -12,7 +12,7 @@
             </v-list-tile-content>
           </v-list-tile>
 
-          <v-list-tile @click="goToLink(`/user`)">
+          <v-list-tile  v-if="role =='admin'" @click="goToLink(`/user`)">
             <v-list-tile-action>
               <v-icon>weekend</v-icon>
             </v-list-tile-action>
@@ -64,7 +64,8 @@ export default {
   data () {
     return {
       search: '',
-      status: '',     
+      status: '',  
+role: this.$cookie.get('role'),	  
       drawer: null
     }
   },
