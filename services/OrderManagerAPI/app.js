@@ -24,7 +24,7 @@ app.use(cors());
 app.use(passport.initialize());
 app.set('budgetsecret', config.secret);     
  console.log("test");
-consign({ cwd: 'Services' })
+consign({ cwd: 'services' })
       .include('OrderManagerAPI/app/setup')
       .then('OrderManagerAPI/app/api')
       .then('OrderManagerAPI/app/routes')
