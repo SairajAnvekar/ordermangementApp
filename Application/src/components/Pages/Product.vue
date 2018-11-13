@@ -12,25 +12,26 @@
               <v-toolbar-title>Product</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark flat v-if="!product._id" @click.native="save()">Save</v-btn>
-                <v-btn dark flat v-if="product._id" @click.native="update()">Update</v-btn>
+                <v-btn dark flat v-if="!product._id" :disabled="view" @click.native="save()">Save</v-btn>
+                <v-btn dark flat v-if="product._id" :disabled="view" @click.native="update()">Update</v-btn>
               </v-toolbar-items>
             </v-toolbar>
 
             <v-card>
               <v-card-title>
-                <span class="headline">Product</span>
+                <span class="headline">Product  test{{view}}</span>
               </v-card-title>
               <v-card-text>
                 <v-alert :value="productResult.status" :type="productResult.type">{{productResult.message}}
                 </v-alert>
                 <v-container grid-list-md>
-                  <v-layout wrap>
+				<v-form ref="form" v-model="valid">
+                  <v-layout wrap>				   
                     <v-flex xs12 sm6 md4>
-                      <v-text-field label="Product Name " v-model="product.name"></v-text-field>
+                      <v-text-field label="Product Name "  :readonly="view" :rules="[rules.required]"  v-model="product.name"></v-text-field>
                     </v-flex>
                     <v-flex xs9 sm6 md3>
-                      <v-autocomplete v-model="product.category_id" :items="categoryList" max-height="500" chips label="Category"
+                      <v-autocomplete v-model="product.category_id" :readonly="view"  :rules="[rules.required]"  :items="categoryList" max-height="500" chips label="Category"
                         item-text="name" item-value="_id">
                         <template slot="selection" slot-scope="{ item, index }">
                           <v-chip>
@@ -61,37 +62,38 @@
 
                     </v-flex>
                     <v-flex xs12 sm6 md4>
-                      <v-text-field label="Product Code " v-model="product.code"></v-text-field>
+                      <v-text-field label="Product Code " :readonly="view" :rules="[rules.required]"  v-model="product.code"></v-text-field>
                     </v-flex>
                     <v-flex xs12>
-                      <v-text-field label="Product Description" v-model="product.description"></v-text-field>
+                      <v-text-field label="Product Description" :readonly="view" :rules="[rules.required]"  v-model="product.description"></v-text-field>
                     </v-flex>
 
                     <v-flex xs12 sm6 md4>
-                      <v-checkbox :label="`Has Dimentions`" v-model="product.hasSize"></v-checkbox>
+                      <v-checkbox :label="`Has Dimentions`"  :readonly="view" v-model="product.hasSize"></v-checkbox>
                     </v-flex>
 
 
                     <div style="display:flex" v-if="product.hasSize">
                       <v-flex xs12 sm6 md3>
-                        <v-text-field label="Height" v-model="product.size.height" type="number" required></v-text-field>
+                        <v-text-field label="Height"  :rules="[rules.required]" :readonly="view"  v-model="product.size.height" type="number" required></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm6 md3>
-                        <v-text-field label="Width" v-model="product.size.width" type="number" required></v-text-field>
+                        <v-text-field label="Width" :rules="[rules.required]"  :readonly="view" v-model="product.size.width" type="number" required></v-text-field>
                       </v-flex>
 
                       <v-flex xs12 sm6 md3>
-                        <v-text-field label="Unit Rate" v-model="product.size.rate"  type="number"required></v-text-field>
+                        <v-text-field label="Unit Rate" v-model="product.size.rate"  :readonly="view" :rules="[rules.required]"  type="number" required></v-text-field>
                       </v-flex>
 
                     </div>
                     <v-flex xs12>
                       <v-flex md3>
-                        <v-text-field label="Product Price" v-model="product.price" type="number" required></v-text-field>
+                        <v-text-field label="Product Price" v-model="product.price"  :readonly="view" :rules="[rules.required]" type="number" required></v-text-field>
                       </v-flex>
                     </v-flex>
-
+					
                   </v-layout>
+				  </v-form >
                 </v-container>
                 <small>*indicates required field</small>
 
@@ -152,12 +154,18 @@
             <td>{{ props.item.description }}</td>
             <td>{{ props.item.price }}</td>
             <td class="text-xs-center">
+			<span v-if="role =='admin'">
+
               <v-btn v-on:click="editProduct(props.item)" outline fab  small color="indigo">
                 <v-icon>edit</v-icon>
               </v-btn>
 			    <v-btn v-on:click="deleteProduct(props.item)" outline fab  small color="indigo">
                 <v-icon>remove</v-icon>
-              </v-btn>			  
+              </v-btn>	
+</span>
+ <v-btn v-on:click="viewProduct(props.item)" outline fab  small color="indigo">
+                <v-icon>visibility</v-icon>
+              </v-btn>				  
             </td>
 			
 
@@ -183,6 +191,8 @@
     data() {
       return {
 	  snackbar :false,
+	  valid:true,
+	  view:false,
 	  message:'test',
         validated: 1,
         loginPage: false,
@@ -193,6 +203,7 @@
         productList: [],
         categoryList: [],
         categoryId: '',
+		role: this.$cookie.get('role'),
         categoryResult: {
           status: false,
           error: ""
@@ -212,6 +223,16 @@
         category: {
           name: '',
           code: ''
+        },
+		 rules: {
+          required: value => !!value || 'Required.',
+          validateNum: value => !isNaN(value) || 'Number Required.',
+          counter: value => value.length <= 20 || 'Max 20 characters',
+          email: value => {
+            const pattern =
+              /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            return pattern.test(value) || 'Invalid e-mail.'
+          }
         },
         headers: [{
             text: 'Code',
@@ -296,12 +317,29 @@
             rate: 0
           })
 		this.snackbar =true;
-
+		this.view= false
         }
       },
+	  
+	   viewProduct(product) {
+	   console.log("dddddddddddddddd");
+	     this.view = true;
+		 console.log(this.view);
+        this.productDialog = true;
+        this.product = product;
+        if (!this.product.hasSize) {
+          this.$set(this.product, 'size', {
+            height: 0,
+            width: 0,
+            rate: 0
+          })
+				
+        }
+      },
+	  
 
       save() {
-
+if (this.$refs.form.validate()) {
         const catCode = this.categoryList.filter(category => category._id == this.product.category_id);
         console.log(catCode[0]);
         console.log(this.product.category_id);
@@ -332,6 +370,7 @@
             this.productResult.message = "Duplicate Entry or something went wrong";
             this.productResult.type = "error"
           })
+	}	  
       },
 
       getCategory() {

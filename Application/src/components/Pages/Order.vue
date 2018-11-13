@@ -25,6 +25,7 @@
 
               <v-container grid-list-md>
                 <v-form ref="form" v-model="valid">
+				 
                   <v-layout wrap>
                     <v-flex xs12 sm6 md4>
                       <v-text-field label="Order No" v-model="order.order_no" disabled ></v-text-field>
@@ -40,9 +41,9 @@
                     <v-flex xs9 sm6 md3>
                       <v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition"
                         offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="order.delivery_date">
-                        <v-text-field slot="activator" label="Date Of Delivery" v-model="order.delivery_date" required
+                        <v-text-field slot="activator" label="Date Of Delivery"  v-model="order.delivery_date" required
                           prepend-icon="event" readonly></v-text-field>
-                        <v-date-picker required :rules="[rules.required]"  v-model="order.delivery_date" @change="saveDate" no-title scrollable>
+                        <v-date-picker required :rules="[rules.required]"   v-model="order.delivery_date" @change="saveDate" no-title scrollable>
                         </v-date-picker>
                       </v-menu>
 
@@ -58,7 +59,7 @@
                         class="elevation-1 order">
                         <template slot="items" slot-scope="props">
                           <td>
-                            <v-select  required :items="productList" v-model="props.item.productId" item-value="_id" item-text="name"
+                            <v-select  required :items="productList"  :rules="[rules.required]"  v-model="props.item.productId" item-value="_id" item-text="name"
                               autocomplete single-line @input="activeProduct(props.item) " :readonly="view"></v-select>
                           </td>
                           <td>
@@ -96,7 +97,7 @@
                         <template slot="footer">
                           <tr>
                             <td>
-                              <v-btn fab color="indigo" dark small top @click.native="addItem()">
+                              <v-btn fab  :disabled="view" color="indigo" dark small top @click.native="addItem()">
                                 <v-icon dark>add</v-icon>
                               </v-btn>
                             </td>
@@ -120,7 +121,7 @@
                           </tr>
                           <tr>
                             <td>
-                              <v-btn color="indigo" indigo dark small @click.native="paymentDialog = true,calculateBalance()">
+                              <v-btn color="indigo"  :disabled="!valid" indigo dark small @click.native="paymentDialog = true,calculateBalance()">
                                 Payement
                               </v-btn>
                             </td>
@@ -324,7 +325,7 @@
               <v-chip color="primary" text-color="white">{{ props.item.status }}</v-chip>
             </td>
             <td class="text-xs-center">
-              <v-btn v-on:click="editOrder(props.item)" outline small fab color="indigo">
+              <v-btn v-on:click="editOrder(props.item)" v-if="role =='admin'" outline small fab color="indigo">
                 <v-icon>edit</v-icon>
               </v-btn>
 
@@ -366,6 +367,7 @@
         orderList: [],
         orderLoading: true,
         view: false,
+		role: this.$cookie.get('role'),
         paymentDialog: false,
         pagination: {
           sortBy: 'order_no',
@@ -547,6 +549,7 @@
           }) => {
             console.log(data)
             this.order = data.data;
+			this.calculateBalance();
             this.getAllOrder();
 
           }).catch(({
@@ -665,6 +668,7 @@
       },
 
       update(context) {
+	   if (this.$refs.form.validate()) {
         Axios.put(`${apiURL}/api/v1/order`, {
           order: this.order
         }, {
@@ -673,7 +677,8 @@
           }
         }).then(({
           data
-        }) => (console.log(data)))
+        }) => (console.log(data), this.order= data,this.calculateBalance(), this.getAllOrder()))
+		}
       },
 
 
@@ -710,9 +715,15 @@
 		mode:'Cash'
 		}
         this.calculatePaidAmt();
-
+		this.saveOrUpdate();
       },
-
+	  
+       saveOrUpdate(){
+		if(this.order._id){
+		this.update();
+		}else{
+		this.save();
+		}},
       calculatePaidAmt() {
         let count = 0;
         console.log(this.order.paymentDetails)
@@ -745,10 +756,10 @@
         mywindow.document.write(content);
         mywindow.document.write('</body></html>');
 
-        //mywindow.document.close();
+        mywindow.document.close();
         mywindow.focus()
         mywindow.print();
-        //mywindow.close();
+        mywindow.close();
         return true;
       }
 

@@ -45,8 +45,11 @@ api.setupCounter=(Counter) => (req, res) => {
 
 api.edit = (Order) => (req, res) => {
  Order.findOneAndUpdate({ _id: req.body.order._id }, req.body.order, (error, order) => {
-          if (error) res.status(400).json(error);
-          res.status(200).json(order);
+          if (error) res.status(400).json(error);        
+			Order.findOne({ _id: req.body.order._id },(error, orders) => {
+				if (error) throw error;
+				res.status(200).json(orders);
+			});
     })   
   }
 
