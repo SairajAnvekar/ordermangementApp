@@ -43,7 +43,7 @@ api.edit = (Product) => (req, res) => {
       product.code=req.body.code ?req.body.code:product.code,
       product.price=req.body.price?req.body.price:product.price,
       product.catCode=req.body.catCode?req.body.cateCode:product.catCode ,
-      product.hasSize= req.body.hasSize ? req.body.hasSize : product.hasSize ,
+      product.hasSize= req.body.hasSize,
       product.size= req.body.hasSize ? req.body.size: product.size
      
       product.save((error,test) => {

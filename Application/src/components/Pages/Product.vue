@@ -269,14 +269,21 @@
     },
     watch: {
       'product.size.height': function (value) {
-        console.log(value);
+        if(this.product.hasSize){
         this.product.price = value * this.product.size.width * this.product.size.rate;
+		}
       },
       'product.size.width': function (value) {
+	  console.log()
+	    if(this.product.hasSize){
         this.product.price = this.product.size.height * this.product.size.width * this.product.size.rate;
+		}
       },
       'product.size.rate': function (value) {
+
+	    if(this.product.hasSize){
         this.product.price = this.product.size.height * this.product.size.width * this.product.size.rate;
+		}
       }
 
 
@@ -387,6 +394,7 @@ if (this.$refs.form.validate()) {
 
       },
       update(context) {
+	  console.log(this.product);
         Axios.put(`${apiURL}/api/v1/product`, this.product, {
           headers: {
             'Authorization': Authentication.getAuthenticationHeader(this)

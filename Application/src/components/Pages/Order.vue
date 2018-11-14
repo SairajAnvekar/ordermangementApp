@@ -42,8 +42,8 @@
                       <v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition"
                         offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="order.delivery_date">
                         <v-text-field slot="activator" label="Date Of Delivery"  v-model="order.delivery_date" required
-                          prepend-icon="event" readonly></v-text-field>
-                        <v-date-picker required :rules="[rules.required]"   v-model="order.delivery_date" @change="saveDate" no-title scrollable>
+                          prepend-icon="event" :readonly="view" ></v-text-field>
+                        <v-date-picker required :rules="[rules.required]"  :readonly="view"  v-model="order.delivery_date" @change="saveDate" no-title scrollable>
                         </v-date-picker>
                       </v-menu>
 
@@ -51,7 +51,7 @@
 
 
                     <v-flex xs12 sm6 md3>
-                      <v-select :items="statusItem" required :readonly="view" label="Status" v-model="order.status" :rules="[rules.required]" ></v-select>
+                      <v-select :items="statusItem" required  label="Status" v-model="order.status" :rules="[rules.required]" ></v-select>
                     </v-flex>
 
                     <v-flex xs12 sm12 md12>
@@ -77,10 +77,10 @@
                           </td>
 
                           <td>
-                            <v-text-field v-if="props.item.hasSize" :readonly="view" v-model="props.item.rate" @input="calculateAmount(props.item)"></v-text-field>
+                            <v-text-field v-if="props.item.hasSize" :readonly="true" v-model="props.item.rate" @input="calculateAmount(props.item)"></v-text-field>
                           </td>
                           <td class="text-xs-center">
-                            <v-text-field v-model="props.item.price" :readonly="view" type="number" @input="calculateAmount(props.item)"></v-text-field>
+                            <v-text-field v-model="props.item.price" :readonly="true" type="number" @input="calculateAmount(props.item)"></v-text-field>
                           </td>
                           <td>
                             <v-text-field v-model="props.item.qty" :readonly="view" type="number" @input="calculateAmount(props.item)"></v-text-field>
