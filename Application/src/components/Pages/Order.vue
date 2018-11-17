@@ -316,7 +316,7 @@
           <v-spacer></v-spacer>
           <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
         </v-card-title>
-        <v-data-table :headers="headers" :search="search" :items="orderList" item-key="name" :loading="orderLoading"
+        <v-data-table :headers="headers" :search="search" :items="orderList" item-key="name" :rows-per-page-items="pageSetup" :loading="orderLoading"
           class="elevation-1">
           <template slot="items" slot-scope="props">
             <td>{{ props.item.order_no }}</td>
@@ -386,6 +386,10 @@
           amount: 0,
           mode: 'Cash'
         },
+        pageSetup: [20, 30, 40, {
+        "text": "$vuetify.dataIterator.rowsPerPageAll",
+        "value": -1
+        }],
         createOrderDialog: false,
         loginPage: false,
         employe: {},
