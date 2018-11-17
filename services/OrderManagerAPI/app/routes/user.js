@@ -10,5 +10,7 @@ module.exports = (app) => {
   app.route('/api/v1/signup')
      .post(api.signup(models.User));
   app.route('/api/v1/user')
-  .put(api.edit(models.User));      
+  .put(api.edit(models.User));
+  app.route('/api/v1/user/delete')
+  .put(api.delete(models.User));       
 }

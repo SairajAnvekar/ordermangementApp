@@ -25,25 +25,28 @@
 
               <v-container grid-list-md>
                 <v-form ref="form" v-model="valid">
-				 
+
                   <v-layout wrap>
                     <v-flex xs12 sm6 md4>
-                      <v-text-field label="Order No" v-model="order.order_no" disabled ></v-text-field>
+                      <v-text-field label="Order No" v-model="order.order_no" disabled></v-text-field>
                     </v-flex>
                     <v-spacer></v-spacer>
                     <v-flex xs12 sm6 md4>
-                      <v-text-field label="Customer Name " required v-model="order.customer_name"  :rules="[rules.required]" :readonly="view"></v-text-field>
+                      <v-text-field label="Customer Name " required v-model="order.customer_name" :rules="[rules.required]"
+                        :readonly="view"></v-text-field>
                     </v-flex>
 
                     <v-flex xs12 sm6 md4>
-                      <v-text-field label="Customer Phone No " required v-model="order.customer_tel"  :rules="[rules.required]"  :readonly="view"></v-text-field>
+                      <v-text-field label="Customer Phone No " required v-model="order.customer_tel" :rules="[rules.required]"
+                        :readonly="view"></v-text-field>
                     </v-flex>
                     <v-flex xs9 sm6 md3>
                       <v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition"
                         offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="order.delivery_date">
-                        <v-text-field slot="activator" label="Date Of Delivery"  v-model="order.delivery_date" required
-                          prepend-icon="event" :readonly="view" ></v-text-field>
-                        <v-date-picker required :rules="[rules.required]"  :readonly="view"  v-model="order.delivery_date" @change="saveDate" no-title scrollable>
+                        <v-text-field slot="activator" label="Date Of Delivery" v-model="order.delivery_date" required
+                          prepend-icon="event" :readonly="view"></v-text-field>
+                        <v-date-picker required :rules="[rules.required]" :readonly="view" v-model="order.delivery_date"
+                          @change="saveDate" no-title scrollable>
                         </v-date-picker>
                       </v-menu>
 
@@ -51,7 +54,7 @@
 
 
                     <v-flex xs12 sm6 md3>
-                      <v-select :items="statusItem" required  label="Status" v-model="order.status" :rules="[rules.required]" ></v-select>
+                      <v-select :items="statusItem" required label="Status" v-model="order.status" :rules="[rules.required]"></v-select>
                     </v-flex>
 
                     <v-flex xs12 sm12 md12>
@@ -59,8 +62,9 @@
                         class="elevation-1 order">
                         <template slot="items" slot-scope="props">
                           <td>
-                            <v-select  required :items="productList"  :rules="[rules.required]"  v-model="props.item.productId" item-value="_id" item-text="name"
-                              autocomplete single-line @input="activeProduct(props.item) " :readonly="view"></v-select>
+                            <v-select required :items="productList" :rules="[rules.required]" v-model="props.item.productId"
+                              item-value="_id" item-text="name" autocomplete single-line @input="activeProduct(props.item) "
+                              :readonly="view"></v-select>
                           </td>
                           <td>
                             <div v-if="props.item.hasSize" calss="xs4 sm4 md6" style="display:inline-flex;max-width:200px">
@@ -97,7 +101,7 @@
                         <template slot="footer">
                           <tr>
                             <td>
-                              <v-btn fab  :disabled="view" color="indigo" dark small top @click.native="addItem()">
+                              <v-btn fab :disabled="view" color="indigo" dark small top @click.native="addItem()">
                                 <v-icon dark>add</v-icon>
                               </v-btn>
                             </td>
@@ -121,7 +125,7 @@
                           </tr>
                           <tr>
                             <td>
-                              <v-btn color="indigo"  :disabled="!valid" indigo dark small @click.native="paymentDialog = true,calculateBalance()">
+                              <v-btn color="indigo" :disabled="!valid" indigo dark small @click.native="paymentDialog = true,calculateBalance()">
                                 Payement
                               </v-btn>
                             </td>
@@ -151,22 +155,23 @@
             <v-card-text>
               <v-container grid-list-md>
                 <v-layout wrap>
-                 
-				  <v-flex xs12 sm12 md6>
+
+                  <v-flex xs12 sm12 md6>
                     <v-text-field label="Amount*" v-model="payment.amount" required @input="calculateBalance()" :rules="[rules.validateNum]"></v-text-field>
                   </v-flex>
-				   <v-flex xs12 sm12 md6>
-                    <v-text-field label="Amount Paid "  disabled v-model="order.paid_amount" required @input="calculateBalance()" :rules="[rules.validateNum]"></v-text-field>
-                  </v-flex>				
-				  
-				   <v-flex xs12 sm6 md6>
+                  <v-flex xs12 sm12 md6>
+                    <v-text-field label="Amount Paid " disabled v-model="order.paid_amount" required @input="calculateBalance()"
+                      :rules="[rules.validateNum]"></v-text-field>
+                  </v-flex>
+
+                  <v-flex xs12 sm6 md6>
                     <v-select :items="paymentType" label="Payment Mode" v-model="payment.mode"></v-select>
                   </v-flex>
-				  
+
                   <v-flex xs12 sm12 md6>
                     <v-text-field label="Balance*" disabled v-model="order.balance" required></v-text-field>
                   </v-flex>
-                 
+
                 </v-layout>
               </v-container>
 
@@ -217,7 +222,7 @@
                         <td colspan="4"> MARGAO - 40601 GOA PH:732892</td>
                       </tr>
                       <tr>
-                       <td colspan="4" style="border-top: 1px solid;"></td>
+                        <td colspan="4" style="border-top: 1px solid;"></td>
                       </tr>
                     </thead>
                     <tr>
@@ -229,10 +234,10 @@
                     <tr>
                       <td>Customer Name</td>
                       <td>{{order.customer_name}}</td>
-					   <td></td>
+                      <td></td>
                       <td></td>
                     </tr>
-					<td colspan="4" style="border-top: 1px solid;"></td>
+                    <td colspan="4" style="border-top: 1px solid;"></td>
                   </table>
                   </hr>
                   <table style="width:100%">
@@ -245,14 +250,14 @@
                       </tr>
                     </thead>
                     <tbody>
-					<td colspan="100" style="border-top: 1px solid;"></td>
+                      <td colspan="100" style="border-top: 1px solid;"></td>
                       <tr v-for="(order, index) in order.orderDetails" :key="index">
                         <td>{{index + 1}}</td>
                         <td><span v-if="productMap[order.productId]">{{productMap[order.productId].name}}</span></span></td>
                         <td>{{order.qty}}</td>
                         <td>{{order.amt}}</td>
                       </tr>
-					 <td colspan="4" style="border-top: 1px solid;"></td>
+                      <td colspan="4" style="border-top: 1px solid;"></td>
                     </tbody>
                     <tfoot>
                       <tr>
@@ -281,14 +286,14 @@
                         <td colspan="3"><strong>Payable Amount</strong></td>
                         <td class="text-xs-right">{{ payeble }}</td>
                       </tr>
-					  <td colspan="8" style="border-top: 1px solid;"></td>
+                      <td colspan="8" style="border-top: 1px solid;"></td>
 
                     </tfoot>
                   </table>
-				<small>Prepared By : {{order.created_user}}</small>
+                  <small>Prepared By : {{order.created_user}}</small>
                 </div>
               </div>
-</hr>
+              </hr>
               <small>*indicates required field</small>
 
             </v-card-text>
@@ -304,8 +309,6 @@
         <v-btn color="indigo" fab dark absolute top left @click.native="addOrder()">
           <v-icon dark>group_add</v-icon>
         </v-btn>
-
-
 
 
         <v-card-title>
@@ -328,14 +331,38 @@
               <v-btn v-on:click="editOrder(props.item)" v-if="role =='admin'" outline small fab color="indigo">
                 <v-icon>edit</v-icon>
               </v-btn>
-
               <v-btn v-on:click="viewOrder(props.item)" outline small fab color="indigo">
                 <v-icon>visibility</v-icon>
+              </v-btn>
+              <v-btn v-on:click="confirmDeleteOrder(props.item)"  v-if="role =='admin'" outline small fab color="indigo">
+                <v-icon>remove</v-icon>
               </v-btn>
 
             </td>
           </template>
         </v-data-table>
+
+        <v-dialog v-model="deleteDialog" max-width="330">
+          <v-card>
+            <v-card-title class="headline">Delete Order</v-card-title>
+
+            <v-card-text>
+              Are you sure you want to delete this Order ?
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+
+              <v-btn color="green darken-1" flat="flat" @click="deleteDialog = false">
+                No
+              </v-btn>
+
+              <v-btn color="green darken-1" flat="flat" @click="deleteOrder()">
+                Yes
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
       </v-container>
       <app-footer></app-footer>
@@ -354,11 +381,11 @@
       return {
         validated: 1,
         search: '',
-		valid:true,
+        valid: true,
         payment: {
-		amount: 0,
-		mode:'Cash'
-		},
+          amount: 0,
+          mode: 'Cash'
+        },
         createOrderDialog: false,
         loginPage: false,
         employe: {},
@@ -367,8 +394,10 @@
         orderList: [],
         orderLoading: true,
         view: false,
-		role: this.$cookie.get('role'),
+        deleteDialog: false,
+        role: this.$cookie.get('role'),
         paymentDialog: false,
+        setDeleteOrder: {},
         pagination: {
           sortBy: 'order_no',
           descending: false,
@@ -538,26 +567,27 @@
       },
 
       save() {
-	  console.log(this.$refs.form);
-	   if (this.$refs.form.validate()) {
-        this.order.created_user = this.$cookie.get('username');
-        Axios.post(`${apiURL}/api/v1/order`, {
-            order: this.order
-          })
-          .then(({
-            data
-          }) => {
-            console.log(data)
-            this.order = data.data;
-			this.calculateBalance();
-            this.getAllOrder();
-
-          }).catch(({
-            response: {
+        console.log(this.$refs.form);
+        if (this.$refs.form.validate()) {
+          this.order.created_user = this.$cookie.get('username');
+          Axios.post(`${apiURL}/api/v1/order`, {
+              order: this.order
+            })
+            .then(({
               data
-            }
-          }) => {})
-      }},
+            }) => {
+              console.log(data)
+              this.order = data.data;
+              this.calculateBalance();
+              this.getAllOrder();
+
+            }).catch(({
+              response: {
+                data
+              }
+            }) => {})
+        }
+      },
 
       setup() {
         this.order.created_user = this.$cookie.get('username');
@@ -668,19 +698,35 @@
       },
 
       update(context) {
-	   if (this.$refs.form.validate()) {
-        Axios.put(`${apiURL}/api/v1/order`, {
-          order: this.order
+        if (this.$refs.form.validate()) {
+          Axios.put(`${apiURL}/api/v1/order`, {
+            order: this.order
+          }, {
+            headers: {
+              'Authorization': Authentication.getAuthenticationHeader(this)
+            }
+          }).then(({
+            data
+          }) => (console.log(data), this.order = data, this.calculateBalance(), this.getAllOrder()))
+        }
+      },
+
+      confirmDeleteOrder(order) {
+        this.setDeleteOrder = order._id;
+        this.deleteDialog = true;
+      },
+
+      deleteOrder() {
+        Axios.put(`${apiURL}/api/v1/order/delete`, {
+          _id: this.setDeleteOrder
         }, {
           headers: {
             'Authorization': Authentication.getAuthenticationHeader(this)
           }
         }).then(({
           data
-        }) => (console.log(data), this.order= data,this.calculateBalance(), this.getAllOrder()))
-		}
+        }) => (console.log(data), this.deleteDialog = false, this.getAllOrder()))
       },
-
 
       formateDate(date) {
         return date ? moment(new DateOnly(date)).format('YYYY-MM-DD') : "";
@@ -711,19 +757,20 @@
       pay() {
         this.order.paymentDetails.push(this.payment);
         this.payment = {
-		amount: 0,
-		mode:'Cash'
-		}
+          amount: 0,
+          mode: 'Cash'
+        }
         this.calculatePaidAmt();
-		this.saveOrUpdate();
+        this.saveOrUpdate();
       },
-	  
-       saveOrUpdate(){
-		if(this.order._id){
-		this.update();
-		}else{
-		this.save();
-		}},
+
+      saveOrUpdate() {
+        if (this.order._id) {
+          this.update();
+        } else {
+          this.save();
+        }
+      },
       calculatePaidAmt() {
         let count = 0;
         console.log(this.order.paymentDetails)
@@ -778,7 +825,7 @@
   }
 
   .order .v-input input {
-    max-height: 1px;
+    max-height: 27px;
   }
 
   .order .input__control {
@@ -788,6 +835,12 @@
   .recipt {
     width: 80mm;
     border: 1px solid;
+  }
+
+  .v-btn--floating.v-btn--small {
+    height: 35px;
+    ;
+    width: 35px;
   }
 
   @media print {

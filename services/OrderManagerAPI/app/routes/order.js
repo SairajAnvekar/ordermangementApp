@@ -11,5 +11,7 @@ module.exports = (app) => {
      .post(api.setupCounter(models.Counter));
   app.route('/api/v1/Order')
      .put(api.edit(models.Order));
+   app.route('/api/v1/Order/delete')
+     .put(api.delete(models.Order));
        
 }

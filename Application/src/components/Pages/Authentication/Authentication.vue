@@ -26,7 +26,7 @@
                         :append-icon-cb="() => (loginPasswordVisible = !loginPasswordVisible)"
                         :type="loginPasswordVisible ? 'text' : 'password'"
                         required
-                         name="password" label="Password" id="password" type="password"></v-text-field>
+                         name="password" label="Password" id="password" ></v-text-field>
                       </v-form>
                     </v-card-text>
                     <v-card-actions>

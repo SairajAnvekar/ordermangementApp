@@ -45,9 +45,20 @@
     <v-toolbar color="indigo" dark fixed app>
         <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
         <v-toolbar-title>Application</v-toolbar-title>
-        <v-flex xs2 offset-md7 md2>
-          <v-btn  color="blue" @click.native="submitSignout()">Sign out</v-btn>
-        </v-flex>
+           <v-spacer></v-spacer>
+          <v-toolbar-items>
+            
+          
+          <v-menu bottom offset-y>  
+               <v-btn flat  slot="activator"><v-icon>account_circle</v-icon> <v-spacer></v-spacer> {{user}} </v-btn>
+            <v-list>         
+              <v-list-tile @click="submitSignout()">
+                <v-list-tile-title>
+                  <v-icon>input</v-icon> Log out</v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+          </v-menu>
+        </v-toolbar-items>        
       </v-toolbar>
   </header>
 </template>
@@ -65,7 +76,8 @@ export default {
     return {
       search: '',
       status: '',  
-role: this.$cookie.get('role'),	  
+      role: this.$cookie.get('role'),
+      user: this.$cookie.get('username'),	  
       drawer: null
     }
   },

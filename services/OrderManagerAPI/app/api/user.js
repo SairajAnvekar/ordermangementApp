@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 const api = {};
 api.setup = (User) => (req, res) => {
   const admin = new User({
-    username: 'admin',
+    username: 'admin1',
     password: 'admin123456',
+    role:"admin",
     clients: []
   });
 admin.save(error => {
@@ -54,13 +55,20 @@ api.edit = (user) => (req, res) => {
       user.tel_no = req.body.tel_no ? req.body.tel_no : user.tel_no;    
       user.name = req.body.name ? req.body.name : user.name;
      
-      user.save((error,test) => {
+      user.save((error,user) => {
         if (error) return res.status(400).json({ success: false, message: 'Username or Empoyle ID already exists.' });
-        res.json({ success: true, message: test });
+        res.json({ success: true, message: user });
       });
      }
     });
   }
 
+  api.delete = (user) => (req, res) => {
+    user.remove({_id: req.body._id }, (error, users) => {
+      if (error) throw error;
+      res.status(200).json(users);
+    });
+  }
+  
 
 module.exports = api;

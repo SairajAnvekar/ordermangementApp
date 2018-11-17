@@ -10,7 +10,8 @@ export default {
       .then(({data}) => {
         context.$cookie.set('token', data.token, '1D')
 		context.$cookie.set('role', data.user.role, '1D')
-		context.$cookie.set('username', data.user.username, '1D')
+    context.$cookie.set('username', data.user.username, '1D')
+    context.$cookie.set('id', data.user._id, '1D')
        /* context.$cookie.set('emp_id', data.user.emp_id, '1D')
         context.$cookie.set('username', data.user.username, '1D')
         context.$cookie.set('role', data.user.role, '1D')
