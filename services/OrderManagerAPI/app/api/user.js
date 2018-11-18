@@ -27,20 +27,26 @@ if (token) {
 api.signup = (User) => (req, res) => {
   if (!req.body.username || !req.body.password) res.json({ success: false, message: 'Please, pass an username and password.' });
   else {
-    const user = new User({
-      username: req.body.username,
-      name: req.body.name,
-      password: req.body.password,
-      emp_id: req.body.emp_id,
-      role: req.body.role,
-      tel_no: req.body.tel_no,
-      email: req.body.email, 
-    });
 
-    user.save(error => {
-      if (error) return res.status(400).json({ success: false, message:error });
-      res.json({ success: true, message: 'Account created successfully' });
-    });
+    User.findOne({ username: {$regex: new RegExp('^' + req.body.username, 'i')} }, (error, user) => {
+      if(user){
+        return res.status(400).json({ success: false, message:error,error:"Username already exist" })
+      }else{
+        const user = new User({
+          username: req.body.username.toLowerCase(),
+          name: req.body.name,
+          password: req.body.password,
+          emp_id: req.body.emp_id,
+          role: req.body.role,
+          tel_no: req.body.tel_no,
+          email: req.body.email, 
+        });    
+        user.save(error => {
+          if (error) return res.status(400).json({ success: false, message:error });
+          res.json({ success: true, message: 'Account created successfully' });
+        });
+      }  
+    });    
   }
 }
 

@@ -41,7 +41,7 @@
                           max-height="500" chips label="Category" item-text="name" item-value="_id">
                           <template slot="selection" slot-scope="{ item, index }">
                             <v-chip>
-                              <span>{{ item.name }}</span>
+                              <span>{{ item.code }}</span>
                             </v-chip>
                           </template>
 
@@ -62,7 +62,7 @@
                         </v-autocomplete>
                       </v-flex>
                       <v-flex xs3 sm3 md1>
-                        <v-btn fab dark small color="indigo" @click.native="dialog = true">
+                        <v-btn fab dark small  :disabled="view" color="indigo" @click.native="dialog = true">
                           <v-icon dark>add</v-icon>
                         </v-btn>
 
@@ -118,33 +118,44 @@
           </v-card>
         </v-dialog>
 
-        <v-dialog v-model="dialog" persistent max-width="300px">
+        <v-dialog v-model="dialog" persistent max-width="500px">
           <v-card>
             <v-card-title>
               <span class="headline">Category</span>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" flat @click.native="dialog = false">Close</v-btn>
             </v-card-title>
             <v-card-text>
               <v-container grid-list-md>
                 <v-layout wrap>
-                  <v-flex xs12 sm12 md12>
+                  <v-flex xs12 sm12 md5>
                     <v-text-field label="Category Name*" v-model="category.name" required></v-text-field>
                   </v-flex>
-                  <v-flex xs12 sm12 md12>
+                  <v-flex xs12 sm12 md4>
                     <v-text-field label="Category Code" v-model="category.code"></v-text-field>
                   </v-flex>
-
+                  <v-flex xs12 sm12 md3>
+                    <v-btn color="blue darken-1" flat @click.native="addCategory()">Save</v-btn>
+                  </v-flex>
                   <v-alert :value="categoryResult.status" type="error">{{categoryResult.error}}
                   </v-alert>
-
                 </v-layout>
               </v-container>
-              <small>*indicates required field</small>
             </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" flat @click.native="dialog = false">Close</v-btn>
-              <v-btn color="blue darken-1" flat @click.native="addCategory()">Save</v-btn>
-            </v-card-actions>
+
+            <v-data-table :headers="catHeaders" :items="categoryList" item-key="name" :search="search" class="elevation-1">
+              <template slot="items" slot-scope="props">
+                <td>{{ props.item.name }}</td>
+                <td>{{ props.item.code }}</td>
+                <td class="text-xs-center">
+                  <span v-if="role =='admin'">
+                    <v-btn v-on:click="deleteCategory(props.item)" outline fab small color="indigo">
+                      <v-icon>remove</v-icon>
+                    </v-btn>
+                  </span>
+                </td>
+              </template>
+            </v-data-table>
           </v-card>
         </v-dialog>
         <v-btn color="indigo" fab dark absolute top left @click="create()">
@@ -161,6 +172,7 @@
           <template slot="items" slot-scope="props">
             <td>{{ props.item.code }}</td>
             <td>{{ props.item.name }}</td>
+            <td>{{ props.item.catCode }}</td>
             <td>{{ props.item.description }}</td>
             <td>{{ props.item.price }}</td>
             <td class="text-xs-center">
@@ -182,27 +194,27 @@
           </template>
         </v-data-table>
       </v-container>
-           <v-dialog v-model="deleteDialog" max-width="330">
-          <v-card>
-            <v-card-title class="headline">Delete Product</v-card-title>
+      <v-dialog v-model="deleteDialog" max-width="330">
+        <v-card>
+          <v-card-title class="headline">Delete Product</v-card-title>
 
-            <v-card-text>
-              Are you sure you want to delete this Poduct ?
-            </v-card-text>
+          <v-card-text>
+            Are you sure you want to delete this Poduct ?
+          </v-card-text>
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
+          <v-card-actions>
+            <v-spacer></v-spacer>
 
-              <v-btn color="green darken-1" flat="flat" @click="deleteDialog = false">
-                No
-              </v-btn>
+            <v-btn color="green darken-1" flat="flat" @click="deleteDialog = false">
+              No
+            </v-btn>
 
-              <v-btn color="green darken-1" flat="flat" @click="deleteProduct()">
-                Yes
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+            <v-btn color="green darken-1" flat="flat" @click="deleteProduct()">
+              Yes
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <app-footer></app-footer>
     </v-layout>
   </v-content>
@@ -229,8 +241,8 @@
         loginPage: false,
         productDialog: false,
         dialog: false,
-        deleteDialog:false,
-        deletingProduct:{},
+        deleteDialog: false,
+        deletingProduct: {},
         search: '',
         productLoading: true,
         productList: [],
@@ -267,6 +279,20 @@
             return pattern.test(value) || 'Invalid e-mail.'
           }
         },
+        catHeaders: [{
+          text: 'Name',
+          align: 'center',
+          value: 'name'
+        }, {
+          text: 'Code',
+          align: 'center',
+          sortable: false,
+          value: 'code'
+        }, {
+          text: 'Delete',
+          align: 'center',
+          value: 'Edit'
+        }],
         headers: [{
             text: 'Code',
             align: 'center',
@@ -277,6 +303,11 @@
             text: 'Name',
             align: 'center',
             value: 'name'
+          },
+          {
+            text: "Category Code",
+            align: 'center',
+            value: 'catCode'
           },
           {
             text: 'Desc',
@@ -337,10 +368,10 @@
         ))
       },
 
-       deleteConfirm(product){
-         this.deletingProduct= product;
-         this.deleteDialog =true;
-       },
+      deleteConfirm(product) {
+        this.deletingProduct = product;
+        this.deleteDialog = true;
+      },
       create() {
         this.productDialog = true;
         this.product = {
@@ -360,13 +391,11 @@
             width: 0,
             rate: 0
           })
-          this.snackbar = true;
           this.view = false
         }
       },
 
       viewProduct(product) {
-        console.log("dddddddddddddddd");
         this.view = true;
         console.log(this.view);
         this.productDialog = true;
@@ -394,7 +423,7 @@
                 token
               }
             }) => {
-              this.snackbarMessage = "User Succesfuly Created";
+              this.snackbarMessage = "Product Succesfuly Created";
               this.snackbarColor = "green";
               this.snackbar = true;
               this.getAllProduct();
@@ -431,7 +460,8 @@
 
       },
       update(context) {
-        console.log(this.product);
+        const catCode = this.categoryList.filter(category => category._id == this.product.category_id);
+        this.product.catCode = catCode[0].code;
         Axios.put(`${apiURL}/api/v1/product`, this.product, {
           headers: {
             'Authorization': Authentication.getAuthenticationHeader(this)
@@ -451,6 +481,21 @@
         }) => (console.log(data), this.deleteDialog = false, this.getAllProduct()))
       },
 
+      deleteCategory(category) {
+        Axios.put(`${apiURL}/api/v1/category/delete`, category, {
+          headers: {
+            'Authorization': Authentication.getAuthenticationHeader(this)
+          }
+        }).then(() => (this.getCategory())).catch(({
+          response: {
+            data
+          }
+        }) => {
+          this.snackbar = true;
+          this.snackbarMessage = data.message;
+          this.snackbarColor = "error"
+        })
+      },
 
       addCategory() {
         Axios.post(`${apiURL}/api/v1/category`, this.category)

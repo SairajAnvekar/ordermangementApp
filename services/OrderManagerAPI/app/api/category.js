@@ -27,6 +27,30 @@ api.add = (Category) => (req, res) => {
   }
 }
 
+api.deleteCat = (Category, Product) => (req, res) => {
+  Product.find({
+    catCode: req.body.code
+  }, (error, products) => { 
+    console.log(products)  
+    if (products.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'The category code is already in use, please delete the product with this Category'
+      });
+    } else {
+      Category.remove({
+        _id: req.body._id
+      }, (error, category) => {
+        if (error) res.status(400).json(error);
+        res.status(200).json({
+          success: true,
+          message: 'The category code is already in use, please delete the product with this Category'
+        });
+      })
+    }
+  });
+}
+
 /*
 api.edit = (Product) => (req, res) => {
     Product.findById(req.body._id,(error, product) =>  { 

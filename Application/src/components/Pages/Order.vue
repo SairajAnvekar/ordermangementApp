@@ -62,9 +62,11 @@
                         class="elevation-1 order">
                         <template slot="items" slot-scope="props">
                           <td>
-                            <v-select required :items="productList" :rules="[rules.required]" v-model="props.item.productId"
-                              item-value="_id" item-text="name" autocomplete single-line @input="activeProduct(props.item) "
-                              :readonly="view"></v-select>
+                            <v-select v-if="!props.item._id" required :items="productList" :rules="[rules.required]"
+                              v-model="props.item.productId" item-value="_id" item-text="customName" autocomplete
+                              single-line @input="activeProduct(props.item) " :readonly="view"></v-select>
+                            <v-text-field v-if="props.item._id" v-model="props.item.productName"  :readonly="true"></v-text-field>
+
                           </td>
                           <td>
                             <div v-if="props.item.hasSize" calss="xs4 sm4 md6" style="display:inline-flex;max-width:200px">
@@ -253,7 +255,7 @@
                       <td colspan="100" style="border-top: 1px solid;"></td>
                       <tr v-for="(order, index) in order.orderDetails" :key="index">
                         <td>{{index + 1}}</td>
-                        <td><span v-if="productMap[order.productId]">{{productMap[order.productId].name}}</span></span></td>
+                        <td>{{order.productName}}</td>
                         <td>{{order.qty}}</td>
                         <td>{{order.amt}}</td>
                       </tr>
@@ -316,8 +318,8 @@
           <v-spacer></v-spacer>
           <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
         </v-card-title>
-        <v-data-table :headers="headers" :search="search" :items="orderList" item-key="name" :rows-per-page-items="pageSetup" :loading="orderLoading"
-          class="elevation-1">
+        <v-data-table :headers="headers" :search="search" :items="orderList" item-key="name" :rows-per-page-items="pageSetup"
+          :loading="orderLoading" class="elevation-1">
           <template slot="items" slot-scope="props">
             <td>{{ props.item.order_no }}</td>
             <td>{{ props.item.customer_name }}</td>
@@ -334,7 +336,7 @@
               <v-btn v-on:click="viewOrder(props.item)" outline small fab color="indigo">
                 <v-icon>visibility</v-icon>
               </v-btn>
-              <v-btn v-on:click="confirmDeleteOrder(props.item)"  v-if="role =='admin'" outline small fab color="indigo">
+              <v-btn v-on:click="confirmDeleteOrder(props.item)" v-if="role =='admin'" outline small fab color="indigo">
                 <v-icon>remove</v-icon>
               </v-btn>
 
@@ -387,8 +389,8 @@
           mode: 'Cash'
         },
         pageSetup: [20, 30, 40, {
-        "text": "$vuetify.dataIterator.rowsPerPageAll",
-        "value": -1
+          "text": "$vuetify.dataIterator.rowsPerPageAll",
+          "value": -1
         }],
         createOrderDialog: false,
         loginPage: false,
@@ -619,6 +621,7 @@
         });
         item.hasSize = product.hasSize ? product.hasSize : false;
         this.$set(item, 'size', {});
+        item.productName= product.name,
         item.size.height = product.hasSize ? product.size.height : '';
         item.size.width = product.hasSize ? product.size.width : '';
         item.rate = product.hasSize ? product.size.rate : '';
@@ -693,6 +696,10 @@
           data
         }) => (
           this.productList = data,
+          this.productList.map(product => {
+            product.customName = product.name + '(' + product.code + ')';
+            return product;
+          }),
           this.productLoading = false,
           data.forEach((product) => {
             this.productMap[product._id] = product

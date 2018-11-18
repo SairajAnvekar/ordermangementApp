@@ -27,6 +27,7 @@ api.add = (Product) => (req, res) => {
       description: req.body.description,
       category_id: req.body.category_id,
       code: req.body.code,
+      catCode: req.body.catCode,
       price: req.body.price,
       hasSize: req.body.hasSize ? req.body.hasSize : false,
       size: req.body.hasSize ? req.body.size : {}
@@ -55,7 +56,7 @@ api.edit = (Product) => (req, res) => {
         product.category_id = req.body.category_id ? req.body.category_id : product.category_id,
         product.code = req.body.code ? req.body.code : product.code,
         product.price = req.body.price ? req.body.price : product.price,
-        product.catCode = req.body.catCode ? req.body.cateCode : product.catCode,
+        product.catCode = req.body.catCode ? req.body.catCode : product.catCode,
         product.hasSize = req.body.hasSize,
         product.size = req.body.hasSize ? req.body.size : product.size
 

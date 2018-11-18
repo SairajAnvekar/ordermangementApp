@@ -1,7 +1,7 @@
 
 <template>
   <header class="l-header-container">
-      <v-navigation-drawer fixed v-model="drawer" app>
+      <v-navigation-drawer fixed v-model="drawer" app  max-width="200px">
        <v-list>
           <v-list-tile @click="goToLink(`/`)">
             <v-list-tile-action>

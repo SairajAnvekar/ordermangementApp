@@ -262,7 +262,7 @@
                 data
               }
             }) => {
-              this.snackbarMessage = "Duplicate Username or something went wrong";
+              this.snackbarMessage = "Duplicate Username, Please try diffrent username";
               this.snackbar = true;
               this.snackbarColor = "error";
 
@@ -341,12 +341,13 @@
           this.snackbarMessage = "User Succesfuly Updated";
           this.snackbarColor = "green";
           this.snackbar = true;
+          this.getAllUsers();
         }).catch(({
           response: {
             data
           }
         }) => {
-          this.snackbarMessage = "Duplicate Username or something went wrong";
+          this.snackbarMessage = "Duplicate Username, Please try diffrent username";
           this.snackbar = true;
           this.snackbarColor = "error";
         })

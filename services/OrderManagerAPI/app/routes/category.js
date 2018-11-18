@@ -7,6 +7,6 @@ module.exports = (app) => {
      .get(passport.authenticate('jwt', config.session),  api.index(models.Category, app.get('budgetsecret')));
   app.route('/api/v1/category')
      .post(api.add(models.Category));
- /* app.route('/api/v1/category')
-  .put(api.edit(models.Category));      */
+  app.route('/api/v1/category/delete')
+  .put(api.deleteCat(models.Category,models.Product));     
 }

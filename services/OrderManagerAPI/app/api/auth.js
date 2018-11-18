@@ -5,9 +5,8 @@ const mongoose = require('mongoose'),
       const api = {};
 
 api.login = (User) => (req, res) => {
-  User.findOne({ username: req.body.username }, (error, user) => {
+  User.findOne({ username: {$regex: new RegExp('^' + req.body.username, 'i')} }, (error, user) => {
     if (error) throw error;
-
     if (!user) res.status(401).send({ success: false, message: 'Authentication failed. User not found.' });
     else {
       user.comparePassword(req.body.password, (error, matches) => {
