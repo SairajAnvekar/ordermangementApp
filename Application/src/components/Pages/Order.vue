@@ -65,7 +65,7 @@
                             <v-select v-if="!props.item._id" required :items="productList" :rules="[rules.required]"
                               v-model="props.item.productId" item-value="_id" item-text="customName" autocomplete
                               single-line @input="activeProduct(props.item) " :readonly="view"></v-select>
-                            <v-text-field v-if="props.item._id" v-model="props.item.productName"  :readonly="true"></v-text-field>
+                            <v-text-field v-if="props.item._id" v-model="props.item.productName" :readonly="true"></v-text-field>
 
                           </td>
                           <td>
@@ -126,13 +126,20 @@
                             <td class="text-xs-right">{{ order.paid_amount }}</td>
                           </tr>
                           <tr>
+
+                            <td colspan="5" class="text-xs-right"><strong>Rounding Off</strong></td>
+                            <td class="text-xs-right">{{ order.roundOff }}</td>
+
+                          </tr>
+
+                          <tr>
                             <td>
                               <v-btn color="indigo" :disabled="!valid" indigo dark small @click.native="paymentDialog = true,calculateBalance()">
                                 Payement
                               </v-btn>
                             </td>
                             <td colspan="4" class="text-xs-right"><strong>Payeble Amount</strong></td>
-                            <td class="text-xs-right">{{ payeble }}</td>
+                            <td class="text-xs-right">{{order.net_payable}}</td>
                           </tr>
 
                         </template>
@@ -285,8 +292,14 @@
                       </tr>
                       <tr>
 
+                        <td colspan="3" class="text-xs-right"><strong>Rounding Off</strong></td>
+                        <td class="text-xs-right">{{ order.roundOff }}</td>
+
+                      </tr>
+                      <tr>
+
                         <td colspan="3"><strong>Payable Amount</strong></td>
-                        <td class="text-xs-right">{{ payeble }}</td>
+                        <td class="text-xs-right">{{ order.net_payable }}</td>
                       </tr>
                       <td colspan="8" style="border-top: 1px solid;"></td>
 
@@ -319,7 +332,7 @@
           <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
         </v-card-title>
         <v-data-table :headers="headers" :search="search" :items="orderList" item-key="name" :rows-per-page-items="pageSetup"
-          :loading="orderLoading" class="elevation-1">
+          :loading="orderLoading" class="elevation-1 order-table">
           <template slot="items" slot-scope="props">
             <td>{{ props.item.order_no }}</td>
             <td>{{ props.item.customer_name }}</td>
@@ -545,6 +558,18 @@
         return this.order.grand_total - this.order.paid_amount;
       }
     },
+    watch: {
+      "order.grand_total": function (value) {
+        var netPay = this.order.grand_total - parseFloat(this.order.paid_amount);
+        this.order.net_payable = Math.round(netPay);
+        this.order.roundOff = this.roundToTwo(this.order.net_payable - netPay);
+      },
+      "order.paid_amount": function (value) {
+        const netPay = this.order.grand_total - this.order.paid_amount;
+        this.order.net_payable = Math.round(netPay);
+        this.order.roundOff = this.roundToTwo(this.order.net_payable - netPay);
+      }
+    },
     methods: {
       saveDate(date) {
         this.$refs.menu.save(date)
@@ -621,8 +646,8 @@
         });
         item.hasSize = product.hasSize ? product.hasSize : false;
         this.$set(item, 'size', {});
-        item.productName= product.name,
-        item.size.height = product.hasSize ? product.size.height : '';
+        item.productName = product.name,
+          item.size.height = product.hasSize ? product.size.height : '';
         item.size.width = product.hasSize ? product.size.width : '';
         item.rate = product.hasSize ? product.size.rate : '';
         item.price = product.price;
@@ -668,7 +693,7 @@
 
       calculateTax() {
         this.order.taxAmt = (this.order.tax * this.order.total) / 100;
-        this.order.grand_total = this.order.total + this.order.taxAmt;
+        this.order.grand_total = this.roundToTwo(this.order.total + this.order.taxAmt);
       },
 
       getAllOrder(context) {
@@ -782,6 +807,9 @@
           this.save();
         }
       },
+      roundToTwo(num) {
+        return +(Math.round(num + "e+2") + "e-2");
+      },
       calculatePaidAmt() {
         let count = 0;
         console.log(this.order.paymentDetails)
@@ -848,10 +876,9 @@
     border: 1px solid;
   }
 
-  .v-btn--floating.v-btn--small {
-    height: 35px;
-    ;
-    width: 35px;
+  .order-table .v-btn--floating.v-btn--small {
+    height: 32px !important;  
+    width: 32px !important;
   }
 
   @media print {

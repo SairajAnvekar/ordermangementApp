@@ -69,6 +69,7 @@ const Schema = mongoose.Schema({
     },
     payment: Number,
     paid_amount: Number,
+    net_payable:Number,
     payemt_status: String
 });
 

@@ -468,7 +468,9 @@
           }
         }).then(({
           data
-        }) => (console.log(data), this.productDialog = false, this.getAllProduct()))
+        }) => {console.log(data), this.productDialog = false,         this.snackbarMessage = "Product Succesfuly Updated";
+              this.snackbarColor = "green";
+              this.snackbar = true;this.getAllProduct()})
       },
 
       deleteProduct() {
