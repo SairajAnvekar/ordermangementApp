@@ -26,9 +26,12 @@ export default {
     }
   }, 
   mounted () {
-   
+   this.test();
   },
   methods: {
+    test(){
+      console.log(this.$vuetify.theme);
+    }
    
   }
 }

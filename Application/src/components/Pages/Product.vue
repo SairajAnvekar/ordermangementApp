@@ -178,14 +178,14 @@
             <td class="text-xs-center">
               <span v-if="role =='admin'">
 
-                <v-btn v-on:click="editProduct(props.item)" outline fab small color="indigo">
+                <v-btn v-on:click="editProduct(props.item)" outline fab small color="white">
                   <v-icon>edit</v-icon>
                 </v-btn>
-                <v-btn v-on:click="deleteConfirm(props.item)" outline fab small color="indigo">
+                <v-btn v-on:click="deleteConfirm(props.item)" outline fab small color="white">
                   <v-icon>remove</v-icon>
                 </v-btn>
               </span>
-              <v-btn v-on:click="viewProduct(props.item)" outline fab small color="indigo">
+              <v-btn v-on:click="viewProduct(props.item)" outline fab small color="white">
                 <v-icon>visibility</v-icon>
               </v-btn>
             </td>

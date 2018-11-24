@@ -27,16 +27,16 @@
                 <v-form ref="form" v-model="valid">
 
                   <v-layout wrap>
-                    <v-flex xs12 sm6 md4>
+                    <v-flex xs12 sm6 md2>
                       <v-text-field label="Order No" v-model="order.order_no" disabled></v-text-field>
                     </v-flex>
                     <v-spacer></v-spacer>
-                    <v-flex xs12 sm6 md4>
+                    <v-flex xs12 sm6 md2>
                       <v-text-field label="Customer Name " required v-model="order.customer_name" :rules="[rules.required]"
                         :readonly="view"></v-text-field>
                     </v-flex>
 
-                    <v-flex xs12 sm6 md4>
+                    <v-flex xs12 sm6 md2>
                       <v-text-field label="Customer Phone No " required v-model="order.customer_tel" :rules="[rules.required]"
                         :readonly="view"></v-text-field>
                     </v-flex>
@@ -343,13 +343,13 @@
               <v-chip color="primary" text-color="white">{{ props.item.status }}</v-chip>
             </td>
             <td class="text-xs-center">
-              <v-btn v-on:click="editOrder(props.item)" v-if="role =='admin'" outline small fab color="indigo">
+              <v-btn v-on:click="editOrder(props.item)" v-if="role =='admin'" outline small fab color="white">
                 <v-icon>edit</v-icon>
               </v-btn>
-              <v-btn v-on:click="viewOrder(props.item)" outline small fab color="indigo">
+              <v-btn v-on:click="viewOrder(props.item)" outline small fab color="white">
                 <v-icon>visibility</v-icon>
               </v-btn>
-              <v-btn v-on:click="confirmDeleteOrder(props.item)" v-if="role =='admin'" outline small fab color="indigo">
+              <v-btn v-on:click="confirmDeleteOrder(props.item)" v-if="role =='admin'" outline small fab color="white">
                 <v-icon>remove</v-icon>
               </v-btn>
 
