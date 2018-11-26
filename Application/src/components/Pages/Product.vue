@@ -9,7 +9,7 @@
         </v-btn>
       </v-snackbar>
       <v-container>
-        <v-dialog v-model="productDialog" fullscreen transition="dialog-bottom-transition" :overlay="false" scrollable>
+        <v-dialog  dark v-model="productDialog" fullscreen transition="dialog-bottom-transition" :overlay="false" scrollable>
           <v-card>
             <v-toolbar card dark color="primary">
               <v-btn icon @click.native="productDialog = false" dark>
@@ -31,13 +31,13 @@
                 <v-alert :value="productResult.status" :type="productResult.type">{{productResult.message}}
                 </v-alert>
                 <v-container grid-list-md>
-                  <v-form ref="form" v-model="valid">
+                  <v-form ref="form"  lazy-validation="true"  v-model="valid">
                     <v-layout wrap>
                       <v-flex xs12 sm6 md4>
-                        <v-text-field label="Product Name " :readonly="view" :rules="[rules.required]" v-model="product.name"></v-text-field>
+                        <v-text-field label="Product Name "  tabindex="1"  v-if="productDialog" autofocus :readonly="view" :rules="[rules.required]" v-model="product.name"></v-text-field>
                       </v-flex>
                       <v-flex xs9 sm6 md3>
-                        <v-autocomplete v-model="product.category_id" :readonly="view" :rules="[rules.required]" :items="categoryList"
+                        <v-autocomplete tabindex="2" v-model="product.category_id" :readonly="view" :rules="[rules.required]" :items="categoryList"
                           max-height="500" chips label="Category" item-text="name" item-value="_id">
                           <template slot="selection" slot-scope="{ item, index }">
                             <v-chip>
@@ -62,43 +62,43 @@
                         </v-autocomplete>
                       </v-flex>
                       <v-flex xs3 sm3 md1>
-                        <v-btn fab dark small  :disabled="view" color="indigo" @click.native="dialog = true">
+                        <v-btn fab dark small  tabindex="-1"  :disabled="view" color="indigo" @click.native="dialog = true">
                           <v-icon dark>add</v-icon>
                         </v-btn>
 
                       </v-flex>
                       <v-flex xs12 sm6 md4>
-                        <v-text-field label="Product Code " :readonly="view" :rules="[rules.required]" v-model="product.code"></v-text-field>
+                        <v-text-field label="Product Code "  tabindex="3" :readonly="view" :rules="[rules.required]" v-model="product.code"></v-text-field>
                       </v-flex>
                       <v-flex xs12>
-                        <v-text-field label="Product Description" :readonly="view" :rules="[rules.required]" v-model="product.description"></v-text-field>
+                        <v-text-field label="Product Description"  tabindex="4" :readonly="view" :rules="[rules.required]" v-model="product.description"></v-text-field>
                       </v-flex>
 
                       <v-flex xs12 sm6 md4>
-                        <v-checkbox :label="`Has Dimentions`" :readonly="view" v-model="product.hasSize"></v-checkbox>
+                        <v-checkbox :label="`Has Dimentions`" tabindex="5" :readonly="view" v-model="product.hasSize"></v-checkbox>
                       </v-flex>
 
 
                       <div style="display:flex" v-if="product.hasSize">
                         <v-flex xs12 sm6 md3>
                           <v-text-field label="Height" :rules="[rules.required]" :readonly="view" v-model="product.size.height"
-                            type="number" required></v-text-field>
+                            type="number" min=0 required></v-text-field>
                         </v-flex>
                         <v-flex xs12 sm6 md3>
                           <v-text-field label="Width" :rules="[rules.required]" :readonly="view" v-model="product.size.width"
-                            type="number" required></v-text-field>
+                            type="number"   min=0 required></v-text-field>
                         </v-flex>
 
                         <v-flex xs12 sm6 md3>
                           <v-text-field label="Unit Rate" v-model="product.size.rate" :readonly="view" :rules="[rules.required]"
-                            type="number" required></v-text-field>
+                            type="number"  min=0 required></v-text-field>
                         </v-flex>
 
                       </div>
                       <v-flex xs12>
                         <v-flex md3>
                           <v-text-field label="Product Price" v-model="product.price" :readonly="view|| product.hasSize"
-                            :rules="[rules.required]" type="number" required></v-text-field>
+                            :rules="[rules.required]" type="number"  min=0 required></v-text-field>
                         </v-flex>
                       </v-flex>
 
@@ -372,8 +372,13 @@
         this.deletingProduct = product;
         this.deleteDialog = true;
       },
+
+      showing() {
+      this.$nextTick(this.$refs.txt.focus)
+      },
+
       create() {
-        this.productDialog = true;
+        this.productDialog = true;       
         this.product = {
           size: {
             height: 0,

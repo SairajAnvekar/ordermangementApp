@@ -2,9 +2,15 @@
   <v-content>
     <v-layout>
       <app-header></app-header>
-      <v-container>
+      <v-snackbar v-model="snackbar" :color="snackbarColor" :top="true">
+        {{snackbarMessage}}
+        <v-btn color="white" flat @click="snackbar = false">
+          Close
+        </v-btn>
+      </v-snackbar>
 
-        <v-dialog v-model="createOrderDialog" fullscreen transition="dialog-bottom-transition" :overlay="false"
+      <v-container>
+        <v-dialog dark v-model="createOrderDialog" fullscreen transition="dialog-bottom-transition" :overlay="false"
           scrollable>
           <v-card>
             <v-toolbar card dark color="primary">
@@ -28,12 +34,12 @@
 
                   <v-layout wrap>
                     <v-flex xs12 sm6 md2>
-                      <v-text-field label="Order No" v-model="order.order_no" disabled></v-text-field>
+                      <v-text-field class="order_no" label="Order No" v-model="order.order_no" disabled></v-text-field>
                     </v-flex>
                     <v-spacer></v-spacer>
                     <v-flex xs12 sm6 md2>
                       <v-text-field label="Customer Name " required v-model="order.customer_name" :rules="[rules.required]"
-                        :readonly="view"></v-text-field>
+                        :readonly="view" v-if="createOrderDialog" autofocus></v-text-field>
                     </v-flex>
 
                     <v-flex xs12 sm6 md2>
@@ -44,7 +50,7 @@
                       <v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition"
                         offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="order.delivery_date">
                         <v-text-field slot="activator" label="Date Of Delivery" v-model="order.delivery_date" required
-                          prepend-icon="event" :readonly="view"></v-text-field>
+                          prepend-icon="event" readonly></v-text-field>
                         <v-date-picker required :rules="[rules.required]" :readonly="view" v-model="order.delivery_date"
                           @change="saveDate" no-title scrollable>
                         </v-date-picker>
@@ -54,7 +60,7 @@
 
 
                     <v-flex xs12 sm6 md3>
-                      <v-select :items="statusItem" required label="Status" v-model="order.status" :rules="[rules.required]"></v-select>
+                      <v-select :items="statusItem" ref="status" required label="Status" v-model="order.status" :rules="[rules.required]"></v-select>
                     </v-flex>
 
                     <v-flex xs12 sm12 md12>
@@ -62,20 +68,20 @@
                         class="elevation-1 order">
                         <template slot="items" slot-scope="props">
                           <td>
-                            <v-select v-if="!props.item._id" required :items="productList" :rules="[rules.required]"
-                              v-model="props.item.productId" item-value="_id" item-text="customName" autocomplete
-                              single-line @input="activeProduct(props.item) " :readonly="view"></v-select>
+                            <v-select class="productSelect" autofocus ref="prod" v-if="!props.item._id" required :items="productList"
+                              :rules="[rules.required]" v-model="props.item.productId" item-value="_id" item-text="customName"
+                              autocomplete single-line @input="activeProduct(props.item) " :readonly="view"></v-select>
                             <v-text-field v-if="props.item._id" v-model="props.item.productName" :readonly="true"></v-text-field>
 
                           </td>
                           <td>
                             <div v-if="props.item.hasSize" calss="xs4 sm4 md6" style="display:inline-flex;max-width:200px">
                               <v-flex xs4 sm4 md6>
-                                <v-text-field v-model="props.item.size.height" @input="calculateAmount(props.item)"
+                                <v-text-field v-model="props.item.size.height" type="number" min=0 @input="calculateAmount(props.item)"
                                   :rules="[rules.required]" :readonly="view"></v-text-field>
                               </v-flex>
                               <v-flex xs4 sm4 md6>
-                                <v-text-field v-model="props.item.size.width" @input="calculateAmount(props.item)"
+                                <v-text-field v-model="props.item.size.width" type="number" min=0 @input="calculateAmount(props.item)"
                                   :rules="[rules.required, rules.validateNum]" :readonly="view"></v-text-field>
                               </v-flex>
                             </div>
@@ -86,10 +92,10 @@
                             <v-text-field v-if="props.item.hasSize" :readonly="true" v-model="props.item.rate" @input="calculateAmount(props.item)"></v-text-field>
                           </td>
                           <td class="text-xs-center">
-                            <v-text-field v-model="props.item.price" :readonly="true" type="number" @input="calculateAmount(props.item)"></v-text-field>
+                            <v-text-field v-model="props.item.price" :readonly="true" min=0 type="number" @input="calculateAmount(props.item)"></v-text-field>
                           </td>
                           <td>
-                            <v-text-field v-model="props.item.qty" :readonly="view" type="number" @input="calculateAmount(props.item)"></v-text-field>
+                            <v-text-field v-model="props.item.qty" :readonly="view" min=0 type="number" @input="calculateAmount(props.item)"></v-text-field>
                           </td>
                           <td>
                             <v-text-field v-model="props.item.amt" :readonly="view"></v-text-field>
@@ -113,7 +119,7 @@
                           <tr>
                             <td colspan="4" class="text-xs-right"><strong>Tax</strong></td>
                             <td class="text-xs-right">
-                              <v-text-field v-model="order.tax" @input="calculateTax()" :readonly="view" type="number"></v-text-field>
+                              <v-text-field v-model="order.tax" @input="calculateTax()" :readonly="view" min=0 type="number"></v-text-field>
                             </td>
                             <td class="text-xs-right">{{ order.taxAmt }}</td>
                           </tr>
@@ -134,7 +140,7 @@
 
                           <tr>
                             <td>
-                              <v-btn color="indigo" :disabled="!valid" indigo dark small @click.native="paymentDialog = true,calculateBalance()">
+                              <v-btn color="indigo" :disabled="!valid" indigo dark small @click.native="paymentDialog = true,calculateBalance(),checkFinalPayment()">
                                 Payement
                               </v-btn>
                             </td>
@@ -166,7 +172,8 @@
                 <v-layout wrap>
 
                   <v-flex xs12 sm12 md6>
-                    <v-text-field label="Amount*" v-model="payment.amount" required @input="calculateBalance()" :rules="[rules.validateNum]"></v-text-field>
+                    <v-text-field label="Amount*" v-model="payment.amount" type='number' min=0 required @input="calculateBalance()"
+                      :rules="[rules.validateNum,rules.checkAmount]" :readonly=!paymentEnabled ></v-text-field>
                   </v-flex>
                   <v-flex xs12 sm12 md6>
                     <v-text-field label="Amount Paid " disabled v-model="order.paid_amount" required @input="calculateBalance()"
@@ -187,7 +194,7 @@
             </v-card-text>
             <v-card-actions>
               <v-btn color="blue darken-1" flat @click.native="paymentDialog = false">Close</v-btn>
-              <v-btn color="blue darken-1" flat @click.native="pay()">Pay</v-btn>
+              <v-btn color="blue darken-1" flat @click.native="pay()" :disabled= paymentDisabled >Pay</v-btn>
             </v-card-actions>
             <v-data-table :headers="paymentHeaders" :items="order.paymentDetails" item-key="name" class="elevation-1">
               <template slot="items" slot-scope="props">
@@ -357,7 +364,7 @@
           </template>
         </v-data-table>
 
-        <v-dialog v-model="deleteDialog" max-width="330">
+        <v-dialog dark v-model="deleteDialog" max-width="330">
           <v-card>
             <v-card-title class="headline">Delete Order</v-card-title>
 
@@ -379,6 +386,17 @@
           </v-card>
         </v-dialog>
 
+
+        <!--  progress bar !-->
+        <v-dialog v-model="processing" hide-overlay persistent width="300">
+          <v-card color="primary" dark>
+            <v-card-text>
+              Please wait
+              <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+
       </v-container>
       <app-footer></app-footer>
     </v-layout>
@@ -397,6 +415,10 @@
         validated: 1,
         search: '',
         valid: true,
+        snackbar: false,
+        snackbarMessage: "",
+        snackbarColor: "green",
+        processing: false,
         payment: {
           amount: 0,
           mode: 'Cash'
@@ -416,6 +438,8 @@
         deleteDialog: false,
         role: this.$cookie.get('role'),
         paymentDialog: false,
+        paymentEnabled: true,
+        paymentDisabled:false,
         setDeleteOrder: {},
         pagination: {
           sortBy: 'order_no',
@@ -423,7 +447,16 @@
         },
         productMap: [],
         printDialog: false,
-        statusItem: ['pending', 'ready', 'delivered'],
+        statusItem: [{
+          text: 'pending',
+          disabled: false
+        }, {
+          text: 'ready',
+          disabled: true
+        }, {
+          text: 'delivered',
+          disabled: true
+        }],
         paymentType: ['Cash', 'Card', 'Cheque'],
         paymentHeaders: [{
             text: 'Transation Id',
@@ -506,6 +539,7 @@
           required: value => !!value || 'Required.',
           validateNum: value => !isNaN(value) || 'Number Required.',
           counter: value => value.length <= 20 || 'Max 20 characters',
+          checkAmount:value => ( -1 <  parseInt(this.order.balance)) || 'more then balance',
           email: value => {
             const pattern =
               /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -517,30 +551,37 @@
         menu: false,
         orderDetailHeader: [{
             text: 'Product',
-            value: 'product'
+            value: 'product',
+            sortable: false,
           },
           {
             text: 'Size ',
-            value: 'size'
+            value: 'size',
+            sortable: false,
           },
           {
             text: 'Rate',
+            sortable: false,
             value: 'rate'
           },
           {
             text: 'Price',
+            sortable: false,
             value: 'price'
           },
           {
             text: 'Qty',
+            sortable: false,
             value: 'qty'
           },
           {
             text: 'Amount',
+            sortable: false,
             value: 'amount'
           },
           {
             text: 'Remove',
+            sortable: false,
             value: 'Remove'
           }
 
@@ -572,7 +613,9 @@
     },
     methods: {
       saveDate(date) {
-        this.$refs.menu.save(date)
+        this.$refs.menu.save(date);
+        console.log(this.$refs.status);
+        this.$refs.status.focus()
       },
 
 
@@ -583,6 +626,7 @@
           tax: 0,
           paid_amount: 0,
           status: 'pending',
+          delivery_date: new Date().toISOString().substr(0, 10),
           paymentDetails: [],
           grand_total: 0,
           orderDetails: [{
@@ -594,11 +638,13 @@
           }],
         };
         this.createOrderDialog = true;
+        this.statusItem[1].disabled = true;
 
       },
 
       save() {
         console.log(this.$refs.form);
+        this.processing = true;
         if (this.$refs.form.validate()) {
           this.order.created_user = this.$cookie.get('username');
           Axios.post(`${apiURL}/api/v1/order`, {
@@ -609,8 +655,18 @@
             }) => {
               console.log(data)
               this.order = data.data;
+              this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
+              'YYYY-MM-DD') : "";
               this.calculateBalance();
               this.getAllOrder();
+              this.processing = false;
+              this.snackbarMessage = "Order Succesfuly Created";
+              this.snackbarColor = "green";
+              this.snackbar = true;
+              this.calculatePaidAmt();
+              this.calculateBalance();
+              this.statusItem[1].disabled = false;
+              this.view = false;
 
             }).catch(({
               response: {
@@ -735,6 +791,7 @@
 
       update(context) {
         if (this.$refs.form.validate()) {
+          this.processing = true;
           Axios.put(`${apiURL}/api/v1/order`, {
             order: this.order
           }, {
@@ -743,7 +800,22 @@
             }
           }).then(({
             data
-          }) => (console.log(data), this.order = data, this.calculateBalance(), this.getAllOrder()))
+          }) => {
+            console.log(data);
+            this.order = data;
+            this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
+              'YYYY-MM-DD') : "";
+            this.calculateBalance();
+            this.getAllOrder();
+            this.processing = false;
+            this.snackbarMessage = "Order Succesfuly Updated";
+            this.snackbarColor = "green";
+            this.snackbar = true;
+            this.calculatePaidAmt();
+            this.calculateBalance();
+            this.statusItem[1].disabled = false;
+            this.view = false;
+          })
         }
       },
 
@@ -777,6 +849,7 @@
           'YYYY-MM-DD') : "";
         this.calculatePaidAmt();
         this.calculateBalance();
+        this.statusItem[1].disabled = false;
         this.view = false;
       },
 
@@ -791,13 +864,25 @@
       },
 
       pay() {
-        this.order.paymentDetails.push(this.payment);
-        this.payment = {
-          amount: 0,
-          mode: 'Cash'
+        const curentDate = new Date().toISOString().substr(0, 10);
+        if ((this.order.paymentDetails.length > 0) && (this.order.status != 'ready' || this.order.delivery_date !=
+            curentDate)) {
+          this.snackbarMessage = "Order should be in Ready State";
+          this.snackbarColor = "red";
+          this.snackbar = true;
+        } else {
+          this.order.paymentDetails.push(this.payment);
+          this.calculatePaidAmt();
+          this.payment = {
+            amount: 0,
+            mode: 'Cash'
+          }
+          this.calculatePaidAmt();
+          if(this.order.balance==0){
+            this.order.status= "delivered";
+          }
+          this.saveOrUpdate();
         }
-        this.calculatePaidAmt();
-        this.saveOrUpdate();
       },
 
       saveOrUpdate() {
@@ -806,6 +891,7 @@
         } else {
           this.save();
         }
+        this.checkFinalPayment();
       },
       roundToTwo(num) {
         return +(Math.round(num + "e+2") + "e-2");
@@ -825,12 +911,30 @@
         this.order.paid_amount = count;
       },
 
-      calculateBalance() {
-        console.log(this.order);
+      calculateBalance() {       
+      
         this.order.balance = this.order.grand_total - ((parseFloat(this.order.paid_amount) || 0) + (parseFloat(this.payment
           .amount) || 0));
+     
         console.log(parseFloat(this.order.paid_amount) + parseFloat(this.payment.amount));
       },
+
+      checkFinalPayment(){
+        if(this.order.paymentDetails.length > 0)
+        {
+          this.paymentEnabled= false;
+          this.payment.amount= this.order.balance;
+        }else{
+              this.paymentEnabled= true;
+          this.payment.amount= 0;
+        } 
+        if( this.order.balance <= 0){
+           this.paymentDisabled =true;
+        }else{
+          this.paymentDisabled =false;
+        }
+      },
+    
       printElem() {
         var content = document.getElementById('printArea').innerHTML;
         var mywindow = window.open('', 'Print', 'height=600,width=800');
@@ -854,6 +958,17 @@
 
 </script>
 <style>
+  .order_no {
+    font-size: 40px !important;
+    font-weight: bold;
+    color: white;
+  }
+
+  .order_no input {
+    color: white !important;
+  }
+
+
   .order table.v-table tfoot tr {
     height: 9px;
     border-top: none;
@@ -877,9 +992,10 @@
   }
 
   .order-table .v-btn--floating.v-btn--small {
-    height: 32px !important;  
+    height: 32px !important;
     width: 32px !important;
   }
+
 
   @media print {
 
