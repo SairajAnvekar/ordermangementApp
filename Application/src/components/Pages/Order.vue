@@ -14,13 +14,13 @@
           scrollable>
           <v-card>
             <v-toolbar card dark color="primary">
-              <v-btn icon @click.native="createOrderDialog = false" dark>
+              <v-btn icon @click.native="createOrderDialog = false ,reset()" dark>
                 <v-icon>close</v-icon>
               </v-btn>
               <v-toolbar-title>Add Order</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark flat v-if="!order._id" @click.native="save()">Save</v-btn>
+                <v-btn dark flat v-if="!order._id" @click.native="save()">Save</v-btn>            
                 <v-btn dark flat v-if="needSetup" @click.native="setup()">setup</v-btn>
                 <v-btn dark flat v-if="order._id" @click.native="update()">Update</v-btn>
                 <v-btn dark flat v-if="order._id" @click.native="printElem()">Print</v-btn>
@@ -38,7 +38,7 @@
                     </v-flex>
                     <v-spacer></v-spacer>
                     <v-flex xs12 sm6 md2>
-                      <v-text-field label="Customer Name " required v-model="order.customer_name" :rules="[rules.required]"
+                      <v-text-field label="Customer Name " ref="cname" required v-model="order.customer_name" :rules="[rules.required]"
                         :readonly="view" v-if="createOrderDialog" autofocus></v-text-field>
                     </v-flex>
 
@@ -140,7 +140,7 @@
 
                           <tr>
                             <td>
-                              <v-btn color="indigo" :disabled="!valid" indigo dark small @click.native="paymentDialog = true,calculateBalance(),checkFinalPayment()">
+                              <v-btn color="indigo" :disabled="!valid" indigo dark small @click.native="paymentDialog = true,payment.amount=0,calculateBalance(),checkFinalPayment()">
                                 Payement
                               </v-btn>
                             </td>
@@ -612,6 +612,9 @@
       }
     },
     methods: {
+      reset(){
+        this.$refs.form.reset();
+      },
       saveDate(date) {
         this.$refs.menu.save(date);
         console.log(this.$refs.status);
@@ -639,6 +642,7 @@
         };
         this.createOrderDialog = true;
         this.statusItem[1].disabled = true;
+        //this.$refs.cname.focus()
 
       },
 
@@ -667,6 +671,10 @@
               this.calculateBalance();
               this.statusItem[1].disabled = false;
               this.view = false;
+              ///
+              const netPay = this.order.grand_total - this.order.paid_amount;
+              this.order.net_payable = Math.round(netPay);
+              this.order.roundOff = this.roundToTwo(this.order.net_payable - netPay);
 
             }).catch(({
               response: {
@@ -815,6 +823,10 @@
             this.calculateBalance();
             this.statusItem[1].disabled = false;
             this.view = false;
+            /////
+            const netPay = this.order.grand_total - this.order.paid_amount;
+            this.order.net_payable = Math.round(netPay);
+            this.order.roundOff = this.roundToTwo(this.order.net_payable - netPay);
           })
         }
       },
@@ -851,6 +863,10 @@
         this.calculateBalance();
         this.statusItem[1].disabled = false;
         this.view = false;
+        /////
+      const netPay = this.order.grand_total - this.order.paid_amount;
+      this.order.net_payable = Math.round(netPay);
+      this.order.roundOff = this.roundToTwo(this.order.net_payable - netPay);
       },
 
       viewOrder(order) {
@@ -865,23 +881,28 @@
 
       pay() {
         const curentDate = new Date().toISOString().substr(0, 10);
-        if ((this.order.paymentDetails.length > 0) && (this.order.status != 'ready' || this.order.delivery_date !=
-            curentDate)) {
+        console.log((this.order.status != 'ready' || this.order.delivery_date !=
+            curentDate));
+        if ( (this.order.paymentDetails.length == 0) || ((this.order.paymentDetails.length > 0) && (this.order.status == 'ready' || this.order.delivery_date ==
+            curentDate))) {
+            this.order.paymentDetails.push(this.payment);
+            this.payment= {
+              amount: 0,
+              mode: 'Cash'
+            };
+            this.calculatePaidAmt(); 
+            this.calculateBalance();  
+            this.order.net_payable = this.order.net_payable -this.order.paid_amount;
+            console.log();           
+            if(this.order.balance==0){
+               this.order.status= "delivered";
+            }
+            this.saveOrUpdate();
+
+        } else {
           this.snackbarMessage = "Order should be in Ready State";
           this.snackbarColor = "red";
-          this.snackbar = true;
-        } else {
-          this.order.paymentDetails.push(this.payment);
-          this.calculatePaidAmt();
-          this.payment = {
-            amount: 0,
-            mode: 'Cash'
-          }
-          this.calculatePaidAmt();
-          if(this.order.balance==0){
-            this.order.status= "delivered";
-          }
-          this.saveOrUpdate();
+          this.snackbar = true;         
         }
       },
 
@@ -891,6 +912,7 @@
         } else {
           this.save();
         }
+        this.paymentDialog=false;
         this.checkFinalPayment();
       },
       roundToTwo(num) {
@@ -913,10 +935,9 @@
 
       calculateBalance() {       
       
-        this.order.balance = this.order.grand_total - ((parseFloat(this.order.paid_amount) || 0) + (parseFloat(this.payment
-          .amount) || 0));
-     
-        console.log(parseFloat(this.order.paid_amount) + parseFloat(this.payment.amount));
+        this.order.balance = (this.order.grand_total + (parseFloat(this.order.roundOff)|| 0 )) - ((parseFloat(this.order.paid_amount) || 0) + (parseFloat(this.payment
+          .amount) || 0));       
+        console.log(parseFloat(this.order.paid_amount) +"+" +parseFloat(this.payment.amount));
       },
 
       checkFinalPayment(){
@@ -925,7 +946,7 @@
           this.paymentEnabled= false;
           this.payment.amount= this.order.balance;
         }else{
-              this.paymentEnabled= true;
+          this.paymentEnabled= true;
           this.payment.amount= 0;
         } 
         if( this.order.balance <= 0){
