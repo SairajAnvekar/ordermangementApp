@@ -878,7 +878,7 @@
 
       viewOrder(order) {
         this.createOrderDialog = true;
-        this.order = order;
+        this.order =  JSON.parse(JSON.stringify(order));;
         this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
           'YYYY-MM-DD') : "";
         this.calculatePaidAmt();
