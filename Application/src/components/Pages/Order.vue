@@ -10,11 +10,11 @@
       </v-snackbar>
 
       <v-container>
-        <v-dialog dark v-model="createOrderDialog" fullscreen transition="dialog-bottom-transition" :overlay="false"
+        <v-dialog dark v-model="createOrderDialog"  :lazy= true fullscreen transition="dialog-bottom-transition" :overlay="false"
           scrollable>
           <v-card>
             <v-toolbar card dark color="primary">
-              <v-btn icon @click.native="createOrderDialog = false ,reset()" dark>
+              <v-btn icon @click.native="createOrderDialog = false,reset() " dark>
                 <v-icon>close</v-icon>
               </v-btn>
               <v-toolbar-title>Add Order</v-toolbar-title>
@@ -38,7 +38,7 @@
                     </v-flex>
                     <v-spacer></v-spacer>
                     <v-flex xs12 sm6 md2>
-                      <v-text-field label="Customer Name " ref="cname" required v-model="order.customer_name" :rules="[rules.required]"
+                      <v-text-field label="Customer Name " ref="customer_name" required v-model="order.customer_name" :rules="[rules.required]"
                         :readonly="view" v-if="createOrderDialog" autofocus></v-text-field>
                     </v-flex>
 
@@ -50,17 +50,16 @@
                       <v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition"
                         offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="order.delivery_date">
                         <v-text-field slot="activator" label="Date Of Delivery" v-model="order.delivery_date" required
-                          prepend-icon="event" readonly></v-text-field>
+                          prepend-icon="event" :readonly="view"></v-text-field>
                         <v-date-picker required :rules="[rules.required]" :readonly="view" v-model="order.delivery_date"
                           @change="saveDate" no-title scrollable>
                         </v-date-picker>
                       </v-menu>
-
                     </v-flex>
 
 
-                    <v-flex xs12 sm6 md3>
-                      <v-select :items="statusItem" ref="status" required label="Status" v-model="order.status" :rules="[rules.required]"></v-select>
+                    <v-flex xs12 sm6 md3>                   
+                      <v-select :items="statusItem" :readonly="view" ref="status" required label="Status" v-model="order.status" :rules="[rules.required]"></v-select>
                     </v-flex>
 
                     <v-flex xs12 sm12 md12>
@@ -89,10 +88,10 @@
                           </td>
 
                           <td>
-                            <v-text-field v-if="props.item.hasSize" :readonly="true" v-model="props.item.rate" @input="calculateAmount(props.item)"></v-text-field>
+                            <v-text-field v-if="props.item.hasSize" :readonly="true"  tabindex="-1" v-model="props.item.rate" @input="calculateAmount(props.item)"></v-text-field>
                           </td>
                           <td class="text-xs-center">
-                            <v-text-field v-model="props.item.price" :readonly="true" min=0 type="number" @input="calculateAmount(props.item)"></v-text-field>
+                            <v-text-field v-model="props.item.price" :readonly="true" tabindex="-1" min=0 type="number" @input="calculateAmount(props.item)"></v-text-field>
                           </td>
                           <td>
                             <v-text-field v-model="props.item.qty" :readonly="view" min=0 type="number" @input="calculateAmount(props.item)"></v-text-field>
@@ -612,18 +611,18 @@
       }
     },
     methods: {
-      reset(){
-        this.$refs.form.reset();
+      reset(){       
+        this.$refs.form.reset();     
       },
       saveDate(date) {
         this.$refs.menu.save(date);
         console.log(this.$refs.status);
-        this.$refs.status.focus()
+        this.$refs.status.focus();
+        
       },
 
-
-      addOrder() {
-        this.order = {
+       setDefaut(){
+          this.order = {
           total: 0,
           taxAmt: 0,
           tax: 0,
@@ -634,16 +633,22 @@
           grand_total: 0,
           orderDetails: [{
             product_id: '',
+            hasSize:false,
             qty: 1,
             size: {},
             price: 0,
             index: 0
           }],
         };
-        this.createOrderDialog = true;
-        this.statusItem[1].disabled = true;
-        //this.$refs.cname.focus()
+       },
 
+      addOrder() {  
+        this.setDefaut();    
+        this.createOrderDialog = true;
+        this.statusItem[1].disabled = true;      
+        this.view = false; 
+        var self =this;   
+        setTimeout(function(){ self.$refs.customer_name.focus(); }, 1);
       },
 
       save() {
@@ -704,19 +709,21 @@
 
 
       activeProduct(item) {
-        console.log(item.productId);
-        const product = this.productList.find(function (product) {
-          return product._id == item.productId
-        });
-        item.hasSize = product.hasSize ? product.hasSize : false;
-        this.$set(item, 'size', {});
-        item.productName = product.name,
-          item.size.height = product.hasSize ? product.size.height : '';
-        item.size.width = product.hasSize ? product.size.width : '';
-        item.rate = product.hasSize ? product.size.rate : '';
-        item.price = product.price;
-        item.amt = parseFloat(item.qty) * parseFloat(item.price);
-        this.calculateTotal();
+        console.log("test",item.productId);     
+        if(item.productId){
+          const product = this.productList.find(function (product) {
+            return product._id == item.productId
+          });
+          item.hasSize = product.hasSize ? product.hasSize : false;
+          this.$set(item, 'size', {});
+          item.productName = product.name,
+            item.size.height = product.hasSize ? product.size.height : '';
+          item.size.width = product.hasSize ? product.size.width : '';
+          item.rate = product.hasSize ? product.size.rate : '';
+          item.price = product.price;
+          item.amt = parseFloat(item.qty) * parseFloat(item.price);
+          this.calculateTotal();
+        }
       },
       addItem() {
         this.order.orderDetails.push({
@@ -856,7 +863,7 @@
 
       editOrder(order) {
         this.createOrderDialog = true;
-        this.order = order;
+        this.order =  JSON.parse(JSON.stringify(order));;
         this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
           'YYYY-MM-DD') : "";
         this.calculatePaidAmt();
