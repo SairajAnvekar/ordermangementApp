@@ -2,15 +2,8 @@
   <v-content>
     <v-layout>
       <app-header></app-header>
-      <v-snackbar v-model="snackbar" :color="snackbarColor" :top="true">
-        {{snackbarMessage}}
-        <v-btn color="white" flat @click="snackbar = false">
-          Close
-        </v-btn>
-      </v-snackbar>
-
       <v-container>
-        <v-dialog dark v-model="createOrderDialog"  :lazy= true fullscreen transition="dialog-bottom-transition" :overlay="false"
+        <v-dialog dark v-model="createOrderDialog" :lazy=true fullscreen transition="dialog-bottom-transition" :overlay="false"
           scrollable>
           <v-card>
             <v-toolbar card dark color="primary">
@@ -20,7 +13,7 @@
               <v-toolbar-title>Add Order</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark flat v-if="!order._id" @click.native="save()">Save</v-btn>            
+                <v-btn dark flat v-if="!order._id" @click.native="save()">Save</v-btn>
                 <v-btn dark flat v-if="needSetup" @click.native="setup()">setup</v-btn>
                 <v-btn dark flat v-if="order._id" @click.native="update()">Update</v-btn>
                 <v-btn dark flat v-if="order._id" @click.native="printElem()">Print</v-btn>
@@ -38,8 +31,8 @@
                     </v-flex>
                     <v-spacer></v-spacer>
                     <v-flex xs12 sm6 md2>
-                      <v-text-field label="Customer Name " ref="customer_name" required v-model="order.customer_name" :rules="[rules.required]"
-                        :readonly="view" v-if="createOrderDialog" autofocus></v-text-field>
+                      <v-text-field label="Customer Name " ref="customer_name" required v-model="order.customer_name"
+                        :rules="[rules.required]" :readonly="view" v-if="createOrderDialog" autofocus></v-text-field>
                     </v-flex>
 
                     <v-flex xs12 sm6 md2>
@@ -58,8 +51,9 @@
                     </v-flex>
 
 
-                    <v-flex xs12 sm6 md3>                   
-                      <v-select :items="statusItem" :readonly="view" ref="status" required label="Status" v-model="order.status" :rules="[rules.required]"></v-select>
+                    <v-flex xs12 sm6 md3>
+                      <v-select :items="statusItem" :readonly="isStatusReadOnly" ref="status" required label="Status"
+                        v-model="order.status" :rules="[rules.required]"></v-select>
                     </v-flex>
 
                     <v-flex xs12 sm12 md12>
@@ -88,10 +82,12 @@
                           </td>
 
                           <td>
-                            <v-text-field v-if="props.item.hasSize" :readonly="true"  tabindex="-1" v-model="props.item.rate" @input="calculateAmount(props.item)"></v-text-field>
+                            <v-text-field v-if="props.item.hasSize" :readonly="true" tabindex="-1" v-model="props.item.rate"
+                              @input="calculateAmount(props.item)"></v-text-field>
                           </td>
                           <td class="text-xs-center">
-                            <v-text-field v-model="props.item.price" :readonly="true" tabindex="-1" min=0 type="number" @input="calculateAmount(props.item)"></v-text-field>
+                            <v-text-field v-model="props.item.price" :readonly="true" tabindex="-1" min=0 type="number"
+                              @input="calculateAmount(props.item)"></v-text-field>
                           </td>
                           <td>
                             <v-text-field v-model="props.item.qty" :readonly="view" min=0 type="number" @input="calculateAmount(props.item)"></v-text-field>
@@ -168,32 +164,33 @@
             </v-card-title>
             <v-card-text>
               <v-container grid-list-md>
-                <v-layout wrap>
+                <v-form ref="paymentForm" v-model="validPay">
+                  <v-layout wrap>
+                    <v-flex xs12 sm12 md6>
+                      <v-text-field label="Amount*" v-model="payment.amount" type='number' min=0 required @input="calculateBalance()"
+                        :rules="[rules.validateNum,rules.checkAmount]" :readonly=!paymentEnabled></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm12 md6>
+                      <v-text-field label="Amount Paid " disabled v-model="order.paid_amount" required @input="calculateBalance()"
+                        :rules="[rules.validateNum]"></v-text-field>
+                    </v-flex>
 
-                  <v-flex xs12 sm12 md6>
-                    <v-text-field label="Amount*" v-model="payment.amount" type='number' min=0 required @input="calculateBalance()"
-                      :rules="[rules.validateNum,rules.checkAmount]" :readonly=!paymentEnabled ></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm12 md6>
-                    <v-text-field label="Amount Paid " disabled v-model="order.paid_amount" required @input="calculateBalance()"
-                      :rules="[rules.validateNum]"></v-text-field>
-                  </v-flex>
+                    <v-flex xs12 sm6 md6>
+                      <v-select :items="paymentType" label="Payment Mode" v-model="payment.mode"></v-select>
+                    </v-flex>
 
-                  <v-flex xs12 sm6 md6>
-                    <v-select :items="paymentType" label="Payment Mode" v-model="payment.mode"></v-select>
-                  </v-flex>
+                    <v-flex xs12 sm12 md6>
+                      <v-text-field label="Balance*" disabled v-model="order.balance" required></v-text-field>
+                    </v-flex>
 
-                  <v-flex xs12 sm12 md6>
-                    <v-text-field label="Balance*" disabled v-model="order.balance" required></v-text-field>
-                  </v-flex>
-
-                </v-layout>
+                  </v-layout>
+                </v-form>
               </v-container>
 
             </v-card-text>
             <v-card-actions>
               <v-btn color="blue darken-1" flat @click.native="paymentDialog = false">Close</v-btn>
-              <v-btn color="blue darken-1" flat @click.native="pay()" :disabled= paymentDisabled >Pay</v-btn>
+              <v-btn color="blue darken-1" flat @click.native="pay()" :disabled=validPayent>Pay</v-btn>
             </v-card-actions>
             <v-data-table :headers="paymentHeaders" :items="order.paymentDetails" item-key="name" class="elevation-1">
               <template slot="items" slot-scope="props">
@@ -206,122 +203,101 @@
           </v-card>
         </v-dialog>
 
-        <v-dialog v-model="printDialog" fullscreen transition="dialog-bottom-transition" :overlay="false" scrollable>
+        <div style="display:none">
+        <div id="printArea">
+          <div class="recipt" id="recipt">
 
-          <v-card>
-            <v-toolbar card dark color="primary">
-              <v-btn icon @click.native="printDialog = false" dark>
-                <v-icon>close</v-icon>
-              </v-btn>
-              <v-toolbar-title>print</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-toolbar-items>
-                <v-btn dark flat v-if="!order._id" @click.native="print()">Print</v-btn>
-              </v-toolbar-items>
-            </v-toolbar>
+            <table class="header" style="width:100%">
+              <thead>
+                <tr>
+                  <td colspan="4"> LORENZ & SON</td>
+                </tr>
+                <tr>
+                  <td colspan="4"> BEHIND MUNCIPAL BLDG</td>
+                </tr>
+                <tr>
+                  <td colspan="4"> MARGAO - 40601 GOA PH:732892</td>
+                </tr>
+                <tr>
+                  <td colspan="4" style="border-top: 1px solid;"></td>
+                </tr>
+              </thead>
+              <tr>
+                <td>Order No</td>
+                <td> {{order.order_no}}</td>
+                <td>Date</td>
+                <td>{{formateDate(order.order_date)}}</td>
+              </tr>
+              <tr>
+                <td>Customer Name</td>
+                <td>{{order.customer_name}}</td>
+                <td></td>
+                <td></td>
+              </tr>
+              <td colspan="4" style="border-top: 1px solid;"></td>
+            </table>
+            <hr>
+            <table style="width:100%">
+              <thead>
+                <tr>
+                  <td> Sr </td>
+                  <td>Product</td>
+                  <td> Qty </td>
+                  <td> Amount</td>
+                </tr>
+              </thead>
+              <tbody>
+                <td colspan="100" style="border-top: 1px solid;"></td>
+                <tr v-for="(order, index) in order.orderDetails" :key="index">
+                  <td>{{index + 1}}</td>
+                  <td>{{order.productName}}</td>
+                  <td>{{order.qty}}</td>
+                  <td>{{order.amt}}</td>
+                </tr>
+                <td colspan="4" style="border-top: 1px solid;"></td>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="4" style="top-border:1px solid"></td>
+                </tr>
+                <tr>
+                  <td colspan="3">Amount</td>
+                  <td colspan="1">{{ order.total }}</td>
+                </tr>
+                <tr>
+                  <td colspan="3">
+                    Tax
+                  </td>
+                  <td>{{ order.taxAmt }}</td>
+                </tr>
+                <tr>
+                  <td colspan="3"><strong>Total Amount</strong></td>
+                  <td class="text-xs-right">{{ order.grand_total }}</td>
+                </tr>
+                <tr>
+                  <td colspan="3"><strong>Paid Amount</strong></td>
+                  <td class="text-xs-right">{{ order.paid_amount }}</td>
+                </tr>
+                <tr>
 
+                  <td colspan="3" class="text-xs-right"><strong>Rounding Off</strong></td>
+                  <td class="text-xs-right">{{ order.roundOff }}</td>
 
+                </tr>
+                <tr>
 
-            <v-card-text>
-              <div id="printArea">
-                <div class="recipt" id="recipt">
-                  <table class="header" style="width:100%">
-                    <thead>
-                      <tr>
-                        <td colspan="4"> LORENZ & SON</td>
-                      </tr>
-                      <tr>
-                        <td colspan="4"> BEHIND MUNCIPAL BLDG</td>
-                      </tr>
-                      <tr>
-                        <td colspan="4"> MARGAO - 40601 GOA PH:732892</td>
-                      </tr>
-                      <tr>
-                        <td colspan="4" style="border-top: 1px solid;"></td>
-                      </tr>
-                    </thead>
-                    <tr>
-                      <td>Order No</td>
-                      <td> {{order.order_no}}</td>
-                      <td>Date</td>
-                      <td>{{formateDate(order.order_date)}}</td>
-                    </tr>
-                    <tr>
-                      <td>Customer Name</td>
-                      <td>{{order.customer_name}}</td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <td colspan="4" style="border-top: 1px solid;"></td>
-                  </table>
-                  </hr>
-                  <table style="width:100%">
-                    <thead>
-                      <tr>
-                        <td> Sr </td>
-                        <td>Product</td>
-                        <td> Qty </td>
-                        <td> Amount</td>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <td colspan="100" style="border-top: 1px solid;"></td>
-                      <tr v-for="(order, index) in order.orderDetails" :key="index">
-                        <td>{{index + 1}}</td>
-                        <td>{{order.productName}}</td>
-                        <td>{{order.qty}}</td>
-                        <td>{{order.amt}}</td>
-                      </tr>
-                      <td colspan="4" style="border-top: 1px solid;"></td>
-                    </tbody>
-                    <tfoot>
-                      <tr>
-                        <td colspan="4" style="top-border:1px solid"></td>
-                      </tr>
-                      <tr>
-                        <td colspan="3">Amount</td>
-                        <td colspan="1">{{ order.total }}</td>
-                      </tr>
-                      <tr>
-                        <td colspan="3">
-                          Tax
-                        </td>
-                        <td>{{ order.taxAmt }}</td>
-                      </tr>
-                      <tr>
-                        <td colspan="3"><strong>Total Amount</strong></td>
-                        <td class="text-xs-right">{{ order.grand_total }}</td>
-                      </tr>
-                      <tr>
-                        <td colspan="3"><strong>Paid Amount</strong></td>
-                        <td class="text-xs-right">{{ order.paid_amount }}</td>
-                      </tr>
-                      <tr>
+                  <td colspan="3"><strong>Payable Amount</strong></td>
+                  <td class="text-xs-right">{{ order.net_payable }}</td>
+                </tr>
+                <td colspan="8" style="border-top: 1px solid;"></td>
 
-                        <td colspan="3" class="text-xs-right"><strong>Rounding Off</strong></td>
-                        <td class="text-xs-right">{{ order.roundOff }}</td>
-
-                      </tr>
-                      <tr>
-
-                        <td colspan="3"><strong>Payable Amount</strong></td>
-                        <td class="text-xs-right">{{ order.net_payable }}</td>
-                      </tr>
-                      <td colspan="8" style="border-top: 1px solid;"></td>
-
-                    </tfoot>
-                  </table>
-                  <small>Prepared By : {{order.created_user}}</small>
-                </div>
-              </div>
-              </hr>
-              <small>*indicates required field</small>
-
-            </v-card-text>
-
-          </v-card>
-
-        </v-dialog>
+              </tfoot>
+            </table>
+            <small>Prepared By : {{order.created_user}}</small>
+            
+          </div>
+        </div>
+        </div>
 
 
 
@@ -413,6 +389,7 @@
       return {
         validated: 1,
         search: '',
+        validPay: true,
         valid: true,
         snackbar: false,
         snackbarMessage: "",
@@ -438,7 +415,7 @@
         role: this.$cookie.get('role'),
         paymentDialog: false,
         paymentEnabled: true,
-        paymentDisabled:false,
+        paymentDisabled: false,
         setDeleteOrder: {},
         pagination: {
           sortBy: 'order_no',
@@ -538,7 +515,7 @@
           required: value => !!value || 'Required.',
           validateNum: value => !isNaN(value) || 'Number Required.',
           counter: value => value.length <= 20 || 'Max 20 characters',
-          checkAmount:value => ( -1 <  parseInt(this.order.balance)) || 'more then balance',
+          checkAmount: value => (-1 < parseInt(this.order.balance)) || 'more then balance',
           email: value => {
             const pattern =
               /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -596,6 +573,12 @@
       // a computed getter
       payeble: function () {
         return this.order.grand_total - this.order.paid_amount;
+      },
+      validPayent: function () {
+        return this.paymentDisabled || !this.validPay
+      },
+      isStatusReadOnly: function () {
+        return this.view && this.order.status == "delivered"
       }
     },
     watch: {
@@ -611,18 +594,18 @@
       }
     },
     methods: {
-      reset(){       
-        this.$refs.form.reset();     
+      reset() {
+        this.$refs.form.reset();
       },
       saveDate(date) {
         this.$refs.menu.save(date);
         console.log(this.$refs.status);
         this.$refs.status.focus();
-        
+
       },
 
-       setDefaut(){
-          this.order = {
+      setDefaut() {
+        this.order = {
           total: 0,
           taxAmt: 0,
           tax: 0,
@@ -633,22 +616,24 @@
           grand_total: 0,
           orderDetails: [{
             product_id: '',
-            hasSize:false,
+            hasSize: false,
             qty: 1,
             size: {},
             price: 0,
             index: 0
           }],
         };
-       },
+      },
 
-      addOrder() {  
-        this.setDefaut();    
+      addOrder() {
+        this.setDefaut();
         this.createOrderDialog = true;
-        this.statusItem[1].disabled = true;      
-        this.view = false; 
-        var self =this;   
-        setTimeout(function(){ self.$refs.customer_name.focus(); }, 1);
+        this.statusItem[1].disabled = true;
+        this.view = false;
+        var self = this;
+        setTimeout(function () {
+          self.$refs.customer_name.focus();
+        }, 1);
       },
 
       save() {
@@ -665,7 +650,7 @@
               console.log(data)
               this.order = data.data;
               this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
-              'YYYY-MM-DD') : "";
+                'YYYY-MM-DD') : "";
               this.calculateBalance();
               this.getAllOrder();
               this.processing = false;
@@ -709,8 +694,8 @@
 
 
       activeProduct(item) {
-        console.log("test",item.productId);     
-        if(item.productId){
+        console.log("test", item.productId);
+        if (item.productId) {
           const product = this.productList.find(function (product) {
             return product._id == item.productId
           });
@@ -863,7 +848,7 @@
 
       editOrder(order) {
         this.createOrderDialog = true;
-        this.order =  JSON.parse(JSON.stringify(order));;
+        this.order = JSON.parse(JSON.stringify(order));;
         this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
           'YYYY-MM-DD') : "";
         this.calculatePaidAmt();
@@ -871,45 +856,47 @@
         this.statusItem[1].disabled = false;
         this.view = false;
         /////
-      const netPay = this.order.grand_total - this.order.paid_amount;
-      this.order.net_payable = Math.round(netPay);
-      this.order.roundOff = this.roundToTwo(this.order.net_payable - netPay);
+        const netPay = this.order.grand_total - this.order.paid_amount;
+        this.order.net_payable = Math.round(netPay);
+        this.order.roundOff = this.roundToTwo(this.order.net_payable - netPay);
       },
 
       viewOrder(order) {
         this.createOrderDialog = true;
-        this.order =  JSON.parse(JSON.stringify(order));;
+        this.order = JSON.parse(JSON.stringify(order));;
         this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
           'YYYY-MM-DD') : "";
         this.calculatePaidAmt();
         this.calculateBalance();
+        this.statusItem[1].disabled = false;
         this.view = true;
       },
 
       pay() {
         const curentDate = new Date().toISOString().substr(0, 10);
         console.log((this.order.status != 'ready' || this.order.delivery_date !=
-            curentDate));
-        if ( (this.order.paymentDetails.length == 0) || ((this.order.paymentDetails.length > 0) && (this.order.status == 'ready' || this.order.delivery_date ==
+          curentDate));
+        if ((this.order.paymentDetails.length == 0) || ((this.order.paymentDetails.length > 0) && (this.order.status ==
+            'ready' || this.order.delivery_date ==
             curentDate))) {
-            this.order.paymentDetails.push(this.payment);
-            this.payment= {
-              amount: 0,
-              mode: 'Cash'
-            };
-            this.calculatePaidAmt(); 
-            this.calculateBalance();  
-            this.order.net_payable = this.order.net_payable -this.order.paid_amount;
-            console.log();           
-            if(this.order.balance==0){
-               this.order.status= "delivered";
-            }
-            this.saveOrUpdate();
+          this.order.paymentDetails.push(this.payment);
+          this.payment = {
+            amount: 0,
+            mode: 'Cash'
+          };
+          this.calculatePaidAmt();
+          this.calculateBalance();
+          this.order.net_payable = this.order.net_payable - this.order.paid_amount;
+          console.log();
+          if (this.order.balance == 0) {
+            this.order.status = "delivered";
+          }
+          this.saveOrUpdate();
 
         } else {
           this.snackbarMessage = "Order should be in Ready State";
           this.snackbarColor = "red";
-          this.snackbar = true;         
+          this.snackbar = true;
         }
       },
 
@@ -919,7 +906,7 @@
         } else {
           this.save();
         }
-        this.paymentDialog=false;
+        this.paymentDialog = false;
         this.checkFinalPayment();
       },
       roundToTwo(num) {
@@ -940,29 +927,29 @@
         this.order.paid_amount = count;
       },
 
-      calculateBalance() {       
-      
-        this.order.balance = (this.order.grand_total + (parseFloat(this.order.roundOff)|| 0 )) - ((parseFloat(this.order.paid_amount) || 0) + (parseFloat(this.payment
-          .amount) || 0));       
-        console.log(parseFloat(this.order.paid_amount) +"+" +parseFloat(this.payment.amount));
+      calculateBalance() {
+
+        this.order.balance = (this.order.grand_total + (parseFloat(this.order.roundOff) || 0)) - ((parseFloat(this.order
+          .paid_amount) || 0) + (parseFloat(this.payment
+          .amount) || 0));
+        console.log(parseFloat(this.order.paid_amount) + "+" + parseFloat(this.payment.amount));
       },
 
-      checkFinalPayment(){
-        if(this.order.paymentDetails.length > 0)
-        {
-          this.paymentEnabled= false;
-          this.payment.amount= this.order.balance;
-        }else{
-          this.paymentEnabled= true;
-          this.payment.amount= 0;
-        } 
-        if( this.order.balance <= 0){
-           this.paymentDisabled =true;
-        }else{
-          this.paymentDisabled =false;
+      checkFinalPayment() {
+        if (this.order.paymentDetails.length > 0) {
+          this.paymentEnabled = false;
+          this.payment.amount = this.order.balance;
+        } else {
+          this.paymentEnabled = true;
+          this.payment.amount = 0;
+        }
+        if (this.order.balance <= 0) {
+          this.paymentDisabled = true;
+        } else {
+          this.paymentDisabled = false;
         }
       },
-    
+
       printElem() {
         var content = document.getElementById('printArea').innerHTML;
         var mywindow = window.open('', 'Print', 'height=600,width=800');

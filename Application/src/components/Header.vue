@@ -37,7 +37,16 @@
             <v-list-tile-content>            
                 <v-list-tile-title>Order</v-list-tile-title>             
             </v-list-tile-content>
-          </v-list-tile>  
+          </v-list-tile>
+
+          <v-list-tile  v-if="role =='admin'" @click="goToLink(`/orderReport`)">
+            <v-list-tile-action>
+              <v-icon>weekend</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>Reports</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
 
 
         </v-list>

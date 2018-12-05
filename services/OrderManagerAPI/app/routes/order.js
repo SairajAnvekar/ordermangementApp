@@ -13,5 +13,7 @@ module.exports = (app) => {
      .put(api.edit(models.Order));
    app.route('/api/v1/Order/delete')
      .put(api.delete(models.Order));
+     app.route('/api/v1/orderReports')
+     .get(passport.authenticate('jwt', config.session),  api.reports(models.Order, app.get('budgetsecret')));
        
 }
