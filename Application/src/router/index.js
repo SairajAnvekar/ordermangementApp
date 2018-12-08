@@ -10,6 +10,7 @@ import User from '@/components/pages/Users'
 import Product from '@/components/pages/Product'
 import Order from '@/components/pages/Order'
 import OrderReport from '@/components/pages/OrderReport'
+import PaymentReport from '@/components/pages/PaymentReport'
 // Global components
 
 import Header from '@/components/Header'
@@ -81,6 +82,18 @@ const router = new Router({
       name: 'orderReport',
       components: {
         default: OrderReport,
+        header: Header,
+        foter:Footer
+      },
+      meta: {
+        requiredAuth: true
+      }
+    },
+    {
+      path: '/paymentReport',
+      name: 'paymentReport',
+      components: {
+        default: PaymentReport,
         header: Header,
         foter:Footer
       },

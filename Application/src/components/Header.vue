@@ -48,6 +48,16 @@
             </v-list-tile-content>
           </v-list-tile>
 
+          
+          <v-list-tile  v-if="role =='admin'" @click="goToLink(`/paymentReport`)">
+            <v-list-tile-action>
+              <v-icon>weekend</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>Payment Reports</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+
 
         </v-list>
     </v-navigation-drawer> 

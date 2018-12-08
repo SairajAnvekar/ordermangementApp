@@ -45,6 +45,44 @@ api.reports = (Order, BudgetToken) => (req, res) => {
   });
 }
 
+
+api.paymentReports = (Order, BudgetToken) => (req, res) => {
+  const token = BudgetToken;
+  const start = new Date(req.query.startDate);
+  const end = new Date(req.query.endDate);
+  end.setDate(end.getDate() + 1);
+  console.log( start);
+  var query = {};
+  if (req.query.startDate && req.query.endDate) {
+    query = {
+      "paymentDetails.payment_date": {
+        $gte:  start ,
+        $lte:  end     
+      }
+    };
+  }
+
+  console.log(query);
+
+  if (token) {
+    Order.aggregate([{
+      $unwind: "$paymentDetails"
+    },
+    {$match:query}, {
+      $project: {
+        paymentDetails: 1,
+        order_no: 1
+      }
+    }]).exec((error, orders) => {
+      if (error) throw error;
+      res.status(200).json(orders);
+    });
+  } else return res.status(403).send({
+    success: false,
+    message: 'Unauthorized'
+  });
+}
+
 api.add = (Order, Counter) => (req, res) => {
 
   Counter.findOneAndUpdate({

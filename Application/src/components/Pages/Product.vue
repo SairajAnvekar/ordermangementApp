@@ -81,23 +81,23 @@
 
                       <div style="display:flex" v-if="product.hasSize">
                         <v-flex xs12 sm6 md3>
-                          <v-text-field label="Height" :rules="[rules.required]" :readonly="view" v-model="product.size.height"
+                          <v-text-field label="Height" tabindex="6" :rules="[rules.required]" :readonly="view" v-model="product.size.height"
                             type="number" min=0 required></v-text-field>
                         </v-flex>
                         <v-flex xs12 sm6 md3>
-                          <v-text-field label="Width" :rules="[rules.required]" :readonly="view" v-model="product.size.width"
+                          <v-text-field label="Width"  tabindex="7" :rules="[rules.required]" :readonly="view" v-model="product.size.width"
                             type="number"   min=0 required></v-text-field>
                         </v-flex>
 
                         <v-flex xs12 sm6 md3>
-                          <v-text-field label="Unit Rate" v-model="product.size.rate" :readonly="view" :rules="[rules.required]"
+                          <v-text-field label="Unit Rate" tabindex="8" v-model="product.size.rate" :readonly="view" :rules="[rules.required]"
                             type="number"  min=0 required></v-text-field>
                         </v-flex>
 
                       </div>
                       <v-flex xs12>
                         <v-flex md3>
-                          <v-text-field label="Product Price" v-model="product.price" :readonly="view|| product.hasSize"
+                          <v-text-field label="Product Price"  tabindex="9" v-model="product.price" :readonly="view|| product.hasSize"
                             :rules="[rules.required]" type="number"  min=0 required></v-text-field>
                         </v-flex>
                       </v-flex>
@@ -110,8 +110,8 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" flat @click.native="productDialog = false">Close</v-btn>
-                <v-btn color="blue darken-1" dark flat v-if="!product._id" @click.native="save()">Save</v-btn>
+                <v-btn color="blue darken-1"  tabindex="10" flat @click.native="productDialog = false">Close</v-btn>
+                <v-btn color="blue darken-1"  tabindex="11" dark flat v-if="!product._id" @click.native="save()">Save</v-btn>
               </v-card-actions>
             </v-card>
             <v-divider></v-divider>
