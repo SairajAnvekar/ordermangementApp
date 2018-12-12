@@ -108,8 +108,12 @@
                                 <v-icon dark>add</v-icon>
                               </v-btn>
                             </td>
-                            <td colspan="4" class="text-xs-right"><strong>Amount</strong></td>
-                            <td colspan="1" class="text-xs-right">{{ order.total }}</td>
+                            <td colspan="4" class="text-xs-right"><strong>Items</strong></td>
+                            <td colspan="1" class="text-xs-right">{{ order.items }}</td>
+                          </tr>
+                          <tr>
+                            <td colspan="5" class="text-xs-right"><strong> Amount</strong></td>
+                            <td class="text-xs-right">{{ order.total }}</td>
                           </tr>
                           <tr>
                             <td colspan="4" class="text-xs-right"><strong>Tax</strong></td>
@@ -193,10 +197,11 @@
               <v-btn color="blue darken-1" flat @click.native="pay()" :disabled=validPayent>Pay</v-btn>
             </v-card-actions>
             <v-data-table :headers="paymentHeaders" :items="order.paymentDetails" item-key="name" class="elevation-1">
-              <template slot="items" slot-scope="props">
-                <td>{{ props.item._id }}</td>
-                <td>{{ formateDate(props.item.payment_date) }}</td>
+              <template slot="items" slot-scope="props"> 
+                <td>{{ formateDate(props.item.payment_date) }}</td>              
+                <td>{{ formateTime(props.item.payment_date) }}</td>
                 <td>{{ props.item.amount }}</td>
+                <td>{{ props.item.mode }}</td>
               </template>
             </v-data-table>
 
@@ -259,6 +264,11 @@
               <tfoot>
                 <tr>
                   <td colspan="4" style="top-border:1px solid"></td>
+                </tr>
+
+                <tr>
+                  <td colspan="3">Items</td>
+                  <td colspan="1">{{order.items }}</td>
                 </tr>
                 <tr>
                   <td colspan="3">Amount</td>
@@ -372,6 +382,21 @@
           </v-card>
         </v-dialog>
 
+          <v-dialog v-model="orderInfo" max-width="290">
+            <v-card>
+              <v-card-title class="headline">Order No </v-card-title>
+                <v-card-text>
+                <h1>{{order.order_no}}</h1>
+                </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green darken-1" flat="flat" @click="orderInfo = false">
+                  close
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
       </v-container>
       <app-footer></app-footer>
     </v-layout>
@@ -388,9 +413,11 @@
     data() {
       return {
         validated: 1,
+        addNew:false,
         search: '',
         validPay: true,
         valid: true,
+        orderInfo:false,
         snackbar: false,
         snackbarMessage: "",
         snackbarColor: "green",
@@ -434,14 +461,15 @@
           disabled: true
         }],
         paymentType: ['Cash', 'Card', 'Cheque'],
-        paymentHeaders: [{
-            text: 'Transation Id',
-            align: 'center',
-            value: '_id',
-            sortable: false,
-          },
+        paymentHeaders: [ 
           {
             text: 'Date',
+            align: 'center',
+            value: 'payment_date',
+            sortable: false,
+          },
+            {
+            text: 'Time',
             align: 'center',
             value: 'payment_date',
             sortable: false,
@@ -450,6 +478,12 @@
             text: 'Amount',
             align: 'center',
             value: 'amout',
+            sortable: false,
+          },
+           {
+            text: 'Mode',
+            align: 'center',
+            value: 'Mode',
             sortable: false,
           }
 
@@ -502,6 +536,7 @@
           status: 'pending',
           paymentDetails: [],
           grand_total: 0,
+          items:0,
           orderDetails: [{
             product_id: '',
             qty: 1,
@@ -578,7 +613,7 @@
         return this.paymentDisabled || !this.validPay
       },
       isStatusReadOnly: function () {
-        return this.view && this.order.status == "delivered"
+        return this.view && this.order.status == "delivered" || this.addNew && this.order.status == "delivered"
       }
     },
     watch: {
@@ -586,6 +621,16 @@
         var netPay = this.order.grand_total - parseFloat(this.order.paid_amount);
         this.order.net_payable = Math.round(netPay);
         this.order.roundOff = this.roundToTwo(this.order.net_payable - netPay);
+      },
+       "createOrderDialog": function (value){
+         console.log("test 1111")
+         var totalItem = 0;
+         console.log(this.order.orderDetails)
+            this.order.orderDetails.forEach(element => {
+              totalItem =totalItem + 1;       
+            });
+             this.order.items = totalItem;
+           
       },
       "order.paid_amount": function (value) {
         const netPay = this.order.grand_total - this.order.paid_amount;
@@ -630,6 +675,7 @@
         this.createOrderDialog = true;
         this.statusItem[1].disabled = true;
         this.view = false;
+        this.addNew = true;
         var self = this;
         setTimeout(function () {
           self.$refs.customer_name.focus();
@@ -661,6 +707,7 @@
               this.calculateBalance();
               this.statusItem[1].disabled = false;
               this.view = false;
+              this.orderInfo=true;
               ///
               const netPay = this.order.grand_total - this.order.paid_amount;
               this.order.net_payable = Math.round(netPay);
@@ -740,9 +787,12 @@
 
       calculateTotal() {
         let total = 0;
+        let totalItem =0;
         this.order.orderDetails.forEach(element => {
+          totalItem =totalItem + 1;
           total = element.amt ? total + element.amt : total;
         });
+        this.order.items= totalItem;
         this.order.total = total;
         this.calculateTax();
       },
@@ -855,6 +905,7 @@
         this.calculateBalance();
         this.statusItem[1].disabled = false;
         this.view = false;
+        this.addNew = false;
         /////
         const netPay = this.order.grand_total - this.order.paid_amount;
         this.order.net_payable = Math.round(netPay);
@@ -948,6 +999,10 @@
         } else {
           this.paymentDisabled = false;
         }
+      },
+
+      formateTime(date) {
+        return date ? moment(date).format('hh:mm A') : "";
       },
 
       printElem() {

@@ -33,17 +33,27 @@
             <td>{{ props.item.paymentDetails._id }}</td>
             <td>{{ props.item.order_no }}</td>
             <td>{{ props.item.paymentDetails.payment_date }}</td>
-            <td>{{ props.item.paymentDetails.payment_time }}</td>
+            <td >{{ props.item.paymentDetails.payment_time }}</td>
             <td>{{ props.item.paymentDetails.amount }}</td>
             <td>{{ props.item.paymentDetails.mode }}</td>        
           </template>
           <template slot="footer">
-
+           
             <tr>
-              
-              <td>Total Amount</td>
-              <td>{{footerData.totalAmt}}</td>               
+              <td>By  Cash</td>
+              <td>{{footerData.byMode['Cash']}}</td>  
+            
+              <td>By  Cheque</td>
+              <td>{{footerData.byMode['Cheque'] || 0}}</td>  
+         
+               <td>By  Card</td>
+              <td>{{footerData.byMode['Card'] || 0}}</td>       
             </tr>
+             <tr>              
+              <td>Total Amount</td>
+              <td>{{footerData.totalAmt}}</td>
+            </tr> 
+            
           </template>
         </v-data-table>
 
@@ -76,7 +86,8 @@
         footerData: {
           totalAmt: 0,
           totalPaid: 0,
-          balance: 0
+          byMode:0,
+         
         },
         endDate:  new Date().toISOString().substr(0, 10),
         startDate: new Date().toISOString().substr(0, 10),
@@ -94,7 +105,8 @@
           },
           {
             text: 'Payment Date',
-            value: 'status'
+            value: 'order_no',
+            value: 'paymentDetails.payment_date'
           },
           {
             text: 'Payment Time',
@@ -103,12 +115,12 @@
           {
             text: 'Amount',
             align: 'center',
-            value: 'customer_name'
+            value: 'paymentDetails.amount'
           },
           {
             text: 'Mode',
             align: 'center',
-            value: 'grand_total'
+            value: 'paymentDetails.mode'
           },
         ],
       }
@@ -171,15 +183,17 @@
         this.footerData = {
             totalAmt: 0,
            
-          },
+          };
+          let byMode=[];
           orders.forEach((order) => {
             order.paymentDetails.payment_time = this.formateTime(order.paymentDetails.payment_date);          
             order.paymentDetails.payment_date = this.formateDate(order.paymentDetails.payment_date);          
             this.footerData.totalAmt =  this.footerData.totalAmt + order.paymentDetails.amount;
-            console.log( order.paymentDetails.amount,this.footerData.totalAmt);
+            byMode[order.paymentDetails.mode] = (byMode[order.paymentDetails.mode] || 0 ) +  order.paymentDetails.amount;
+            console.log( order.paymentDetails.amount,this.footerData.totalAmt,byMode);
          
          });
-
+        this.footerData.byMode= byMode;
         return orders;
       },
       exportOrder() {
