@@ -158,7 +158,7 @@
             </v-data-table>
           </v-card>
         </v-dialog>
-        <v-btn color="indigo" fab dark absolute top left @click="create()">
+        <v-btn color="indigo"  v-if="role =='admin'" fab dark absolute top left @click="create()">
           <v-icon dark>group_add</v-icon>
         </v-btn>
 

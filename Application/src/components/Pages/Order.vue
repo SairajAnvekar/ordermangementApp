@@ -255,7 +255,7 @@
                 <td colspan="100" style="border-top: 1px solid;"></td>
                 <tr v-for="(order, index) in order.orderDetails" :key="index">
                   <td>{{index + 1}}</td>
-                  <td>{{order.productName}}</td>
+                  <td><span class="trim" >{{order.productName}}</span> <span v-if="order.hasSize"> {{order.size.height}} *  {{order.size.width}}</span></td>
                   <td>{{order.qty}}</td>
                   <td>{{order.amt}}</td>
                 </tr>
@@ -386,7 +386,7 @@
             <v-card>
               <v-card-title class="headline">Order No </v-card-title>
                 <v-card-text>
-                <h1>{{order.order_no}}</h1>
+                <h1 style=" font-size: 140px;">{{order.order_no}}</h1>
                 </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -623,13 +623,7 @@
         this.order.roundOff = this.roundToTwo(this.order.net_payable - netPay);
       },
        "createOrderDialog": function (value){
-         console.log("test 1111")
-         var totalItem = 0;
-         console.log(this.order.orderDetails)
-            this.order.orderDetails.forEach(element => {
-              totalItem =totalItem + 1;       
-            });
-             this.order.items = totalItem;
+        this.calculateTotalItem();
            
       },
       "order.paid_amount": function (value) {
@@ -705,8 +699,10 @@
               this.snackbar = true;
               this.calculatePaidAmt();
               this.calculateBalance();
+              this.calculateTotalItem();
+           
               this.statusItem[1].disabled = false;
-              this.view = false;
+              this.view = true;
               this.orderInfo=true;
               ///
               const netPay = this.order.grand_total - this.order.paid_amount;
@@ -719,6 +715,17 @@
               }
             }) => {})
         }
+      },
+
+
+      calculateTotalItem(){
+      console.log("test 1111")
+      var totalItem = 0;
+      console.log(this.order.orderDetails)
+      this.order.orderDetails.forEach(element => {
+        totalItem =totalItem + 1;       
+      });
+        this.order.items = totalItem;
       },
 
       setup() {
@@ -863,6 +870,8 @@
             this.snackbar = true;
             this.calculatePaidAmt();
             this.calculateBalance();
+            this.calculateTotalItem();
+           
             this.statusItem[1].disabled = false;
             this.view = false;
             /////
@@ -1010,16 +1019,16 @@
         var mywindow = window.open('', 'Print', 'height=600,width=800');
 
         mywindow.document.write(
-          '<html><head><title>Print</title><style>.recipt{width:80mm;}.recipt .header td{text-align:center}</style>'
+          '<html><head><title>Print</title><style>.recipt{width:80mm;}.recipt .header td{text-align:center} .trim{display: inline-block;max-width: 80px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}</style>'
         );
         mywindow.document.write('</head><body >');
         mywindow.document.write(content);
         mywindow.document.write('</body></html>');
 
-        mywindow.document.close();
+       // mywindow.document.close();
         mywindow.focus()
         mywindow.print();
-        mywindow.close();
+       // mywindow.close();
         return true;
       }
 
@@ -1064,6 +1073,13 @@
   .order-table .v-btn--floating.v-btn--small {
     height: 32px !important;
     width: 32px !important;
+  }
+  .trim{
+    display: inline-block;
+    max-width: 80px;    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
 
