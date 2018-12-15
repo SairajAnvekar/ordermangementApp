@@ -2,6 +2,12 @@
   <v-content>
     <v-layout>
       <app-header></app-header>
+        <v-snackbar v-model="snackbar" :color="snackbarColor" :top="true">
+        {{snackbarMessage}}
+        <v-btn color="white" flat @click="snackbar = false">
+          Close
+        </v-btn>
+      </v-snackbar>
       <v-container>
         <v-dialog dark v-model="createOrderDialog" :lazy=true fullscreen transition="dialog-bottom-transition" :overlay="false"
           scrollable>
@@ -43,7 +49,7 @@
                       <v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition"
                         offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="order.delivery_date">
                         <v-text-field slot="activator" label="Date Of Delivery" v-model="order.delivery_date" required
-                          prepend-icon="event" :readonly="view"></v-text-field>
+                          prepend-icon="event" :readonly='true'></v-text-field>
                         <v-date-picker required :rules="[rules.required]" :readonly="view" v-model="order.delivery_date"
                           @change="saveDate" no-title scrollable>
                         </v-date-picker>
@@ -172,7 +178,7 @@
                   <v-layout wrap>
                     <v-flex xs12 sm12 md6>
                       <v-text-field label="Amount*" v-model="payment.amount" type='number' min=0 required @input="calculateBalance()"
-                        :rules="[rules.validateNum,rules.checkAmount]" :readonly=!paymentEnabled></v-text-field>
+                        :rules="[rules.validateNum,rules.checkAmount]"   v-if="paymentDialog" autofocus :readonly=!paymentEnabled></v-text-field>
                     </v-flex>
                     <v-flex xs12 sm12 md6>
                       <v-text-field label="Amount Paid " disabled v-model="order.paid_amount" required @input="calculateBalance()"
@@ -319,7 +325,7 @@
 
 
         <v-card-title>
-          Order
+          <span class="heading">Order</span>
           <v-spacer></v-spacer>
           <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
         </v-card-title>
@@ -933,25 +939,29 @@
       },
 
       pay() {
-        const curentDate = new Date().toISOString().substr(0, 10);
-        console.log((this.order.status != 'ready' || this.order.delivery_date !=
-          curentDate));
-        if ((this.order.paymentDetails.length == 0) || ((this.order.paymentDetails.length > 0) && (this.order.status ==
-            'ready' || this.order.delivery_date ==
-            curentDate))) {
-          this.order.paymentDetails.push(this.payment);
-          this.payment = {
-            amount: 0,
-            mode: 'Cash'
-          };
-          this.calculatePaidAmt();
-          this.calculateBalance();
-          this.order.net_payable = this.order.net_payable - this.order.paid_amount;
-          console.log();
-          if (this.order.balance == 0) {
-            this.order.status = "delivered";
-          }
-          this.saveOrUpdate();
+        const orderDate  = this.order.order_date ? moment(new DateOnly(this.order.order_date)).format('YYYY-MM-DD') : new Date().toISOString().substr(0, 10);
+        this.calculatePaidAmt(); 
+        console.log(this.order);       
+        const balance =this.getBalance();
+        var check = balance == 0 && this.order.status =='ready'? true : false;
+        var check2 = balance != 0 ? true : false;
+        var check3 =  this.order.delivery_date == orderDate ?true: false;
+        console.log('check1 '+ (this.order.paymentDetails.length == 0 && (check || check2 || check3)));
+         console.log(((this.order.paymentDetails.length > 0) && (this.order.status =='ready' && balance == 0)));
+        if ((this.order.paymentDetails.length == 0 && (check || check2 || check3)) || ((this.order.paymentDetails.length > 0) && (this.order.status =='ready' && balance == 0))) {
+                this.order.paymentDetails.push(this.payment);
+                this.payment = {
+                  amount: 0,
+                  mode: 'Cash'
+                };
+                this.calculatePaidAmt(); 
+                this.order.net_payable = this.order.net_payable - this.order.paid_amount;
+                this.calculateBalance();
+                console.log(this.order.balance);
+                if (this.order.balance == 0) {
+                  this.order.status = "delivered";
+                }
+                this.saveOrUpdate();
 
         } else {
           this.snackbarMessage = "Order should be in Ready State";
@@ -993,6 +1003,10 @@
           .paid_amount) || 0) + (parseFloat(this.payment
           .amount) || 0));
         console.log(parseFloat(this.order.paid_amount) + "+" + parseFloat(this.payment.amount));
+      },
+
+      getBalance(){
+        return (this.order.grand_total + (parseFloat(this.order.roundOff) || 0)) - ((parseFloat(this.order.paid_amount) || 0) + (parseFloat(this.payment.amount) || 0));
       },
 
       checkFinalPayment() {

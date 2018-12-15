@@ -8,6 +8,7 @@ import Vuetify from 'vuetify'
 import Authentication from '@/components/pages/Authentication'
 import colors from 'vuetify/es5/util/colors'
 import('../node_modules/vuetify/dist/vuetify.min.css')
+import ('../node_modules/material-design-icons/iconfont/material-icons.css')
 
 Vue.use(VueCookie)
 Vue.use(Vuetify,{

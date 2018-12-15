@@ -25,7 +25,7 @@
 
             <v-card>
               <v-card-title>
-                <span class="headline">Product</span>
+                <span class="headline white">Product</span>
               </v-card-title>
               <v-card-text>
                 <v-alert :value="productResult.status" :type="productResult.type">{{productResult.message}}
@@ -163,7 +163,7 @@
         </v-btn>
 
         <v-card-title>
-          Product
+          <span class="heading"> Product</span>
           <v-spacer></v-spacer>
           <v-text-field v-model="search" append-icon="search" label="Search" single-line hide-details></v-text-field>
         </v-card-title>
@@ -531,3 +531,7 @@
   }
 
 </script>
+<style>
+
+</style>
+

@@ -12,7 +12,7 @@
             </v-list-tile-content>
           </v-list-tile>
 
-          <v-list-tile  v-if="role =='admin'" @click="goToLink(`/user`)">
+          <v-list-tile  v-if="role =='admin'"  :class="$route.path==`/user`?'highlight':''" @click="goToLink(`/user`)">
             <v-list-tile-action>
               <v-icon>weekend</v-icon>
             </v-list-tile-action>
@@ -21,7 +21,7 @@
             </v-list-tile-content>
           </v-list-tile>  
 
-          <v-list-tile @click="goToLink(`/product`)">
+          <v-list-tile :class="$route.path==`/product`?'highlight':''" @click="goToLink(`/product`)">
             <v-list-tile-action>
               <v-icon>weekend</v-icon>
             </v-list-tile-action>
@@ -30,7 +30,7 @@
             </v-list-tile-content>
           </v-list-tile>  
 
-             <v-list-tile @click="goToLink(`/order`)">
+             <v-list-tile  :class="$route.path==`/order`?'highlight':''" @click="goToLink(`/order`)">
             <v-list-tile-action>
               <v-icon>weekend</v-icon>
             </v-list-tile-action>
@@ -39,7 +39,7 @@
             </v-list-tile-content>
           </v-list-tile>
 
-          <v-list-tile  v-if="role =='admin'" @click="goToLink(`/orderReport`)">
+          <v-list-tile  v-if="role =='admin'"   :class="$route.path==`/orderReport`?'highlight':''" @click="goToLink(`/orderReport`)">
             <v-list-tile-action>
               <v-icon>weekend</v-icon>
             </v-list-tile-action>
@@ -49,7 +49,7 @@
           </v-list-tile>
 
           
-          <v-list-tile  v-if="role =='admin'" @click="goToLink(`/paymentReport`)">
+          <v-list-tile  v-if="role =='admin'"  :class="$route.path==`/paymentReport`?'highlight':''" @click="goToLink(`/paymentReport`)">
             <v-list-tile-action>
               <v-icon>weekend</v-icon>
             </v-list-tile-action>
@@ -100,6 +100,11 @@ export default {
       drawer: null
     }
   },
+  mounted() {
+    if(!this.$cookie.get('username')){
+     this.submitSignout();
+    }
+  },
   methods: {
     submitSignout () {
       Authentication.signout(this, '/login')
@@ -114,5 +119,10 @@ export default {
     }
 }
 </script>
+<style>
+.highlight{
+  background:#3f51b5
+}
+</style>
 
 
