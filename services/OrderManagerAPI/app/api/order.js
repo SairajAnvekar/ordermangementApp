@@ -22,10 +22,20 @@ api.reports = (Order, BudgetToken) => (req, res) => {
   const start = new Date(req.query.startDate);
   const end = new Date(req.query.endDate);    
   var  query = {  };
+
+  if(req.query.startDate ){
+    query = { order_date:{$gte: start}};    
+  }
+  if(req.query.endDate){
+    query = { order_date:{$lte: end }};    
+  }
+
   if(req.query.startDate && req.query.endDate){
     query = { order_date:{$gte: start,
       $lte: end }};    
   }
+ 
+
   if(req.query.status){
     if(req.query.status!='all'){
       query.status=req.query.status;

@@ -16,6 +16,5 @@ module.exports = (app) => {
      app.route('/api/v1/orderReports')
      .get(passport.authenticate('jwt', config.session),  api.reports(models.Order, app.get('budgetsecret')));
      app.route('/api/v1/orderPaymentReports')
-     .get(passport.authenticate('jwt', config.session),  api.paymentReports(models.Order, app.get('budgetsecret')));
-       
+     .get(passport.authenticate('jwt', config.session),  api.paymentReports(models.Order, app.get('budgetsecret')));       
 }

@@ -5,7 +5,28 @@
         <v-container >     
            <v-list >
              <v-layout row wrap header >
-              <h1>Welcome To Inventory Management</h1>               
+              <v-flex xs6>
+              <v-card color="blue-grey darken-2" class="white--text">
+                <v-card-title primary-title>
+                  <div>
+                    <div class="headline">Total Order for Today</div>
+                    <span><h1>{{totalOrders}}</h1></span>
+                  </div>
+                </v-card-title>
+               
+              </v-card>
+              </v-flex>
+                 <v-flex xs6>
+               <v-card color="blue-grey darken-2" class="white--text">
+                <v-card-title primary-title>
+                  <div>
+                    <div class="headline">Total Payment Today</div>
+                    <span> <h1>{{totalPayment}}</h1></span>
+                  </div>
+                </v-card-title>
+                
+              </v-card>
+                 </v-flex >
             </v-layout>              
           </v-list>                 
         </v-container>
@@ -22,16 +43,60 @@ export default {
   data () {
     return {
       validated : 1,
-      loginPage : false,      
+      loginPage : false,  
+      totalOrders:0, 
+      totalPayment:0,   
     }
   }, 
   mounted () {
    this.test();
+   this.getAllOrder();
+   this.getAllOrderPayment();
   },
   methods: {
     test(){
       console.log(this.$vuetify.theme);
     }
+    ,
+     getAllOrderPayment(context) {
+        this.orderLoading = true,
+          Axios.get(`${apiURL}/api/v1/orderPaymentReports`, {
+            headers: {
+              'Authorization': Authentication.getAuthenticationHeader(this)
+            },
+             params: {
+              startDate: new Date().toISOString().substr(0, 10),
+              endDate: new Date().toISOString().substr(0, 10),          
+            }
+
+
+          }).then(({
+            data
+          }) => (
+          data.forEach(element => {
+                this.totalPayment =this.totalPayment +element.paymentDetails.amount
+            })
+           
+          ))
+      },
+
+            getAllOrder(context) {
+        this.orderLoading = true,
+          Axios.get(`${apiURL}/api/v1/orderReports`, {
+            headers: {
+              'Authorization': Authentication.getAuthenticationHeader(this)
+            },
+             params: {
+              startDate: new Date().toISOString().substr(0, 10),
+              endDate: new Date().toISOString().substr(0, 10),          
+            }
+            
+          }).then(({
+            data
+          }) => (
+             this.totalOrders = (data.length)          
+          ))
+      },
    
   }
 }

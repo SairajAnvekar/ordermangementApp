@@ -233,6 +233,8 @@
                   <td colspan="4" style="border-top: 1px solid;"></td>
                 </tr>
               </thead>
+              <tr><td colspan="4"><span v-if="order.status== 'delivered'"> Invoice Copy</span><span v-else>Job Order</span></td></tr>
+              <tr><td colspan="4" style="border-top: 1px solid;"></td></tr>
               <tr>
                 <td>Order No</td>
                 <td> {{order.order_no}}</td>
@@ -245,9 +247,8 @@
                 <td></td>
                 <td></td>
               </tr>
-              <td colspan="4" style="border-top: 1px solid;"></td>
-            </table>
-            <hr>
+             <tr><td colspan="4" style="border-top: 1px solid;"></td></tr>
+            </table>         
             <table style="width:100%">
               <thead>
                 <tr>
@@ -261,7 +262,7 @@
                 <td colspan="100" style="border-top: 1px solid;"></td>
                 <tr v-for="(order, index) in order.orderDetails" :key="index">
                   <td>{{index + 1}}</td>
-                  <td><span class="trim" >{{order.productName}}</span> <span v-if="order.hasSize"> {{order.size.height}} *  {{order.size.width}}</span></td>
+                  <td><span class="trim" >{{order.productName}}</span> <span class= "position" v-if="order.hasSize"> {{order.size.height}} *  {{order.size.width}}</span></td>
                   <td>{{order.qty}}</td>
                   <td>{{order.amt}}</td>
                 </tr>
@@ -616,7 +617,7 @@
         return this.order.grand_total - this.order.paid_amount;
       },
       validPayent: function () {
-        return this.paymentDisabled || !this.validPay
+        return this.paymentDisabled || !this.validPay || this.payment.amount <= 0
       },
       isStatusReadOnly: function () {
         return this.view && this.order.status == "delivered" || this.addNew && this.order.status == "delivered"
@@ -1033,16 +1034,16 @@
         var mywindow = window.open('', 'Print', 'height=600,width=800');
 
         mywindow.document.write(
-          '<html><head><title>Print</title><style>.recipt{width:80mm;}.recipt .header td{text-align:center} .trim{display: inline-block;max-width: 80px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}</style>'
+          '<html><head><title>Print</title><style>.recipt{width:80mm;}.recipt .header td{text-align:center} .trim{display: inline-block;max-width: 80px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;} .position{ position:relative;top:-4}</style>'
         );
         mywindow.document.write('</head><body >');
         mywindow.document.write(content);
         mywindow.document.write('</body></html>');
 
-       mywindow.document.close();
+      // mywindow.document.close();
         mywindow.focus()
         mywindow.print();
-       mywindow.close();
+      // mywindow.close();
         return true;
       }
 
