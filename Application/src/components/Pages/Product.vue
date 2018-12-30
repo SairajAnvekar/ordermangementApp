@@ -25,7 +25,7 @@
 
             <v-card>
               <v-card-title>
-                <span class="headline white">Product</span>
+                <span class="headline ">Product</span>
               </v-card-title>
               <v-card-text>
                 <v-alert :value="productResult.status" :type="productResult.type">{{productResult.message}}
@@ -335,18 +335,21 @@
       'product.size.height': function (value) {
         if (this.product.hasSize) {
           this.product.price = value * this.product.size.width * this.product.size.rate;
+          this.product.price = this.roundToTwo(this.product.price);
         }
       },
       'product.size.width': function (value) {
         console.log()
         if (this.product.hasSize) {
           this.product.price = this.product.size.height * this.product.size.width * this.product.size.rate;
+          this.product.price = this.roundToTwo(this.product.price);
         }
       },
       'product.size.rate': function (value) {
 
         if (this.product.hasSize) {
           this.product.price = this.product.size.height * this.product.size.width * this.product.size.rate;
+          this.product.price = this.roundToTwo(this.product.price);
         }
       }
 
@@ -525,6 +528,10 @@
             this.categoryResult.error = "Duplicate Entry";
 
           })
+      },
+
+      roundToTwo(num) {
+       return +(Math.round(num + "e+2") + "e-2");
       },
 
     }

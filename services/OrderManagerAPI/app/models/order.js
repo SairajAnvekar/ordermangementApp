@@ -28,6 +28,7 @@ const Schema = mongoose.Schema({
     total: Number,
     tax: Number,
     taxAmt: Number,
+    discount_amt: Number,
     grand_total: Number,
     order_no: Number,
     status: String,

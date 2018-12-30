@@ -122,9 +122,16 @@
                             <td class="text-xs-right">{{ order.total }}</td>
                           </tr>
                           <tr>
-                            <td colspan="4" class="text-xs-right"><strong>Tax</strong></td>
+                            <td colspan="4" class="text-xs-right"><strong>Discount</strong></td>
                             <td class="text-xs-right">
-                              <v-text-field v-model="order.tax" @input="calculateTax()" :readonly="view" min=0 type="number"></v-text-field>
+                              <v-text-field v-model="order.discount_amt" @input="calculateDiscount"  :readonly="isStatusReadOnly" min=0 type="number"></v-text-field>
+                            </td>
+                            <td class="text-xs-right">{{ discountedAmt() }}</td>
+                          </tr>
+                          <tr>
+                            <td colspan="4" class="text-xs-right"><strong>Tax %</strong></td>
+                            <td class="text-xs-right">
+                              <v-text-field v-model="order.tax" @input="calculateTax()" :readonly="isStatusReadOnly" min=0 type="number"></v-text-field> 
                             </td>
                             <td class="text-xs-right">{{ order.taxAmt }}</td>
                           </tr>
@@ -238,14 +245,14 @@
               <tr>
                 <td>Order No</td>
                 <td> {{order.order_no}}</td>
-                <td>Date</td>
+                <td>Order Date</td>
                 <td>{{formateDate(order.order_date)}}</td>
               </tr>
               <tr>
                 <td>Customer Name</td>
                 <td>{{order.customer_name}}</td>
-                <td></td>
-                <td></td>
+                <td><span v-if="order.status== 'delivered'"> Delivered Date</span><span v-else>Delivery Date</span></td>
+                 <td>{{order.delivery_date}}</td>
               </tr>
              <tr><td colspan="4" style="border-top: 1px solid;"></td></tr>
             </table>         
@@ -262,7 +269,7 @@
                 <td colspan="100" style="border-top: 1px solid;"></td>
                 <tr v-for="(order, index) in order.orderDetails" :key="index">
                   <td>{{index + 1}}</td>
-                  <td><span class="trim" >{{order.productName}}</span> <span class= "position" v-if="order.hasSize"> {{order.size.height}} *  {{order.size.width}}</span></td>
+                  <td><span >{{order.productName}}</span> <span  v-if="order.hasSize"> {{order.size.height}} *  {{order.size.width}}</span></td>
                   <td>{{order.qty}}</td>
                   <td>{{order.amt}}</td>
                 </tr>
@@ -280,6 +287,12 @@
                 <tr>
                   <td colspan="3">Amount</td>
                   <td colspan="1">{{ order.total }}</td>
+                </tr>
+                 <tr v-if="order.discount_amt > 0 ">
+                  <td colspan="3">
+                    Discount
+                  </td>
+                  <td>{{ order.discount_amt }}</td>
                 </tr>
                 <tr>
                   <td colspan="3">
@@ -543,6 +556,8 @@
           status: 'pending',
           paymentDetails: [],
           grand_total: 0,
+          discount:0,
+          discount_amt:0,
           items:0,
           orderDetails: [{
             product_id: '',
@@ -558,6 +573,7 @@
           validateNum: value => !isNaN(value) || 'Number Required.',
           counter: value => value.length <= 20 || 'Max 20 characters',
           checkAmount: value => (-1 < parseInt(this.order.balance)) || 'more then balance',
+          checkDiscount: value => (-1 < parseInt(this.order.net_payable)) || 'Cannot provide more discount',
           email: value => {
             const pattern =
               /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -609,7 +625,7 @@
     },
     mounted() {
       this.getAllProduct();
-      this.getAllOrder()
+      this.getAllOrder();     
     },
     computed: {
       // a computed getter
@@ -655,6 +671,9 @@
           total: 0,
           taxAmt: 0,
           tax: 0,
+          discount:0,
+          discount_amt:0,
+          test:0,
           paid_amount: 0,
           status: 'pending',
           delivery_date: new Date().toISOString().substr(0, 10),
@@ -685,8 +704,9 @@
 
       save() {
         console.log(this.$refs.form);
-        this.processing = true;
+   
         if (this.$refs.form.validate()) {
+          this.processing = true;
           this.order.created_user = this.$cookie.get('username');
           Axios.post(`${apiURL}/api/v1/order`, {
               order: this.order
@@ -791,7 +811,7 @@
         })
         if (item.hasSize) {
           const rate = parseFloat(item.rate);
-          item.price = parseFloat(item.size.height) * parseFloat(item.size.width) * rate;
+          item.price = this.roundToTwo(parseFloat(item.size.height) * parseFloat(item.size.width) * rate);
           console.log(item, rate);
         }
         item.amt = parseFloat(item.qty) * parseFloat(item.price);
@@ -811,9 +831,16 @@
         this.calculateTax();
       },
 
-      calculateTax() {
-        this.order.taxAmt = (this.order.tax * this.order.total) / 100;
-        this.order.grand_total = this.roundToTwo(this.order.total + this.order.taxAmt);
+      calculateTax() {              
+        this.order.taxAmt = this.roundToTwo((this.order.tax * (this.order.total - this.order.discount_amt)) / 100);
+        this.order.grand_total = this.roundToTwo(this.order.total - this.order.discount_amt + this.order.taxAmt);
+      },
+      calculateDiscount(value){       
+       this.calculateTax();
+      },
+
+      discountedAmt() {
+        return this.roundToTwo(this.order.total - this.order.discount_amt);
       },
 
       getAllOrder(context) {
@@ -914,7 +941,8 @@
 
       editOrder(order) {
         this.createOrderDialog = true;
-        this.order = JSON.parse(JSON.stringify(order));;
+        this.order = JSON.parse(JSON.stringify(order));         
+        this.order.discount_amt = this.order.discount_amt ? this.order.discount_amt :0;
         this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
           'YYYY-MM-DD') : "";
         this.calculatePaidAmt();
@@ -929,14 +957,17 @@
       },
 
       viewOrder(order) {
-        this.createOrderDialog = true;
-        this.order = JSON.parse(JSON.stringify(order));;
+        this.order= {};
+        this.createOrderDialog = true;        
+        console.log({order});
+        this.order = JSON.parse(JSON.stringify(order));
+        this.order.discount_amt = this.order.discount_amt ? this.order.discount_amt :0;  
         this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
           'YYYY-MM-DD') : "";
         this.calculatePaidAmt();
         this.calculateBalance();
         this.statusItem[1].disabled = false;
-        this.view = true;
+        this.view = true;      
       },
 
       pay() {
@@ -961,6 +992,7 @@
                 console.log(this.order.balance);
                 if (this.order.balance == 0) {
                   this.order.status = "delivered";
+                  this.order.delivery_date = new Date().toISOString().substr(0, 10);
                 }
                 this.saveOrUpdate();
 
@@ -1040,10 +1072,10 @@
         mywindow.document.write(content);
         mywindow.document.write('</body></html>');
 
-      // mywindow.document.close();
+        mywindow.document.close();
         mywindow.focus()
         mywindow.print();
-      // mywindow.close();
+        mywindow.close();
         return true;
       }
 
