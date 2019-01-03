@@ -252,7 +252,7 @@
                 <td>Cust.Name</td>
                 <td>{{order.customer_name}}</td>
                 <td><span v-if="order.status== 'delivered'"> Delivered D.</span><span v-else>Delivery D.</span></td>
-                 <td>{{order.delivery_date}}</td>
+                 <td>{{formatedDeliveryDate}}</td>
               </tr>
              <tr><td colspan="4" style="border-top: 1px solid;"></td></tr>
             </table>         
