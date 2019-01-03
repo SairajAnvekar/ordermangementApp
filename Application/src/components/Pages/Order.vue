@@ -48,7 +48,7 @@
                     <v-flex xs9 sm6 md3>
                       <v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition"
                         offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="order.delivery_date">
-                        <v-text-field slot="activator" label="Date Of Delivery" v-model="order.delivery_date" required
+                        <v-text-field slot="activator" label="Date Of Delivery" v-model="formatedDeliveryDate" required
                           prepend-icon="event" :readonly='true'></v-text-field>
                         <v-date-picker required :rules="[rules.required]" :readonly="view" v-model="order.delivery_date"
                           @change="saveDate" no-title scrollable>
@@ -242,21 +242,21 @@
               </thead>
               <tr><td colspan="4"><span v-if="order.status== 'delivered'"> Invoice Copy</span><span v-else>Job Order</span></td></tr>
               <tr><td colspan="4" style="border-top: 1px solid;"></td></tr>
-              <tr>
+              <tr style="font-size:13px">
                 <td>Order No</td>
                 <td> {{order.order_no}}</td>
-                <td>Order Date</td>
+                <td>O. Date</td>
                 <td>{{formateDate(order.order_date)}}</td>
               </tr>
-              <tr>
-                <td>Customer Name</td>
+              <tr style="font-size:13px">
+                <td>Cust.Name</td>
                 <td>{{order.customer_name}}</td>
-                <td><span v-if="order.status== 'delivered'"> Delivered Date</span><span v-else>Delivery Date</span></td>
+                <td><span v-if="order.status== 'delivered'"> Delivered D.</span><span v-else>Delivery D.</span></td>
                  <td>{{order.delivery_date}}</td>
               </tr>
              <tr><td colspan="4" style="border-top: 1px solid;"></td></tr>
             </table>         
-            <table style="width:100%">
+            <table vlaign= "top" style="width:100%">
               <thead>
                 <tr>
                   <td> Sr </td>
@@ -268,10 +268,10 @@
               <tbody>
                 <td colspan="100" style="border-top: 1px solid;"></td>
                 <tr v-for="(order, index) in order.orderDetails" :key="index">
-                  <td>{{index + 1}}</td>
-                  <td><span >{{order.productName}}</span> <span  v-if="order.hasSize"> {{order.size.height}} *  {{order.size.width}}</span></td>
-                  <td>{{order.qty}}</td>
-                  <td>{{order.amt}}</td>
+                  <td valign="top" >{{index + 1}}</td>
+                  <td valign="top" ><span >{{order.productName}}</span> <span  v-if="order.hasSize">({{order.size.height}} *  {{order.size.width}})</span></td>
+                  <td valign="top" >{{order.qty}}</td>
+                  <td valign="top" >{{order.amt}}</td>
                 </tr>
                 <td colspan="4" style="border-top: 1px solid;"></td>
               </tbody>
@@ -296,7 +296,7 @@
                 </tr>
                 <tr>
                   <td colspan="3">
-                    Tax
+                    Tax( {{order.tax}})
                   </td>
                   <td>{{ order.taxAmt }}</td>
                 </tr>
@@ -442,10 +442,12 @@
         snackbarMessage: "",
         snackbarColor: "green",
         processing: false,
+        formatedDeliveryDate: moment().format('DD-MM-YYYY'),
         payment: {
           amount: 0,
           mode: 'Cash'
         },
+        dateFormatted:'',
         pageSetup: [20, 30, 40, {
           "text": "$vuetify.dataIterator.rowsPerPageAll",
           "value": -1
@@ -653,7 +655,11 @@
         const netPay = this.order.grand_total - this.order.paid_amount;
         this.order.net_payable = Math.round(netPay);
         this.order.roundOff = this.roundToTwo(this.order.net_payable - netPay);
+      },
+      "order.delivery_date": function (value) {
+          this.formatedDeliveryDate = this.formatStringDate(value);
       }
+
     },
     methods: {
       reset() {
@@ -676,7 +682,7 @@
           test:0,
           paid_amount: 0,
           status: 'pending',
-          delivery_date: new Date().toISOString().substr(0, 10),
+          delivery_date: new Date().toISOString().substr(0, 10),          
           paymentDetails: [],
           grand_total: 0,
           orderDetails: [{
@@ -717,7 +723,7 @@
               console.log(data)
               this.order = data.data;
               this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
-                'YYYY-MM-DD') : "";
+                'DD-MM-YYYY') : "";
               this.calculateBalance();
               this.getAllOrder();
               this.processing = false;
@@ -934,7 +940,7 @@
       },
 
       formateDate(date) {
-        return date ? moment(new DateOnly(date)).format('YYYY-MM-DD') : "";
+        return date ? moment(new DateOnly(date)).format('DD-MM-YYYY') : "";
       },
 
 
@@ -945,6 +951,7 @@
         this.order.discount_amt = this.order.discount_amt ? this.order.discount_amt :0;
         this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
           'YYYY-MM-DD') : "";
+        this.formatedDeliveryDate = this.formatStringDate(this.order.delivery_date);  
         this.calculatePaidAmt();
         this.calculateBalance();
         this.statusItem[1].disabled = false;
@@ -964,6 +971,7 @@
         this.order.discount_amt = this.order.discount_amt ? this.order.discount_amt :0;  
         this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
           'YYYY-MM-DD') : "";
+        this.formatedDeliveryDate = this.formatStringDate(this.order.delivery_date);
         this.calculatePaidAmt();
         this.calculateBalance();
         this.statusItem[1].disabled = false;
@@ -1059,6 +1067,12 @@
 
       formateTime(date) {
         return date ? moment(date).format('hh:mm A') : "";
+      },
+      formatStringDate (date) {
+        if (!date) return null
+
+        const [year, month, day] = date.split('-')
+        return `${day}/${month}/${year}`
       },
 
       printElem() {

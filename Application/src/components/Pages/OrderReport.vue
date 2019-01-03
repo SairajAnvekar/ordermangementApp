@@ -9,7 +9,7 @@
           <div>
           <v-menu ref="menu" lazy :close-on-content-click="false" v-model="menu" transition="scale-transition"
             offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="startDate">
-            <v-text-field slot="activator" label="From" v-model="startDate" required
+            <v-text-field slot="activator" label="From" v-model="startDateFormatted" required
               prepend-icon="event" :readonly="view"></v-text-field>
             <v-date-picker  v-model="startDate" @change="saveDate" no-title scrollable>
             </v-date-picker>
@@ -18,7 +18,7 @@
           <div>
             <v-menu ref="endDate" lazy :close-on-content-click="false" v-model="endDatePicker" transition="scale-transition"
             offset-y full-width :nudge-right="40" min-width="290px" :return-value.sync="endDate">
-            <v-text-field slot="activator" label="To" v-model="endDate"></v-text-field>
+            <v-text-field slot="activator" label="To" v-model="endDateFormatted"></v-text-field>
             <v-date-picker  v-model="endDate" @change="saveEndDate" no-title scrollable>
             </v-date-picker>
             </v-menu>
@@ -91,6 +91,7 @@ export default {
         balance:0
       },
       endDate:"",
+      startDate:'',
         statusItem: ['all','pending','ready','delivered'],
        headers: [{
             text: 'Order No',
@@ -139,7 +140,17 @@ export default {
           },
         ],   
     }
-  }, 
+  },
+  computed: {
+      startDateFormatted () {
+        console.log(this.startDate)
+        return this.formatStringDate(this.startDate)
+      },
+       endDateFormatted () {
+        console.log(this.endDate)
+        return this.formatStringDate(this.endDate)
+      }
+    },
   mounted () {
        this.getAllOrder()
    
@@ -185,7 +196,7 @@ export default {
 
 
       formateDate(date) {
-        return date ? moment(new DateOnly(date)).format('YYYY-MM-DD') : "";
+        return date ? moment(new DateOnly(date)).format('DD-MM-YYYY') : "";
       },
       formateData(orders){
         this.footerData={
@@ -223,6 +234,13 @@ export default {
       saveEndDate(date) {
         this.$refs.endDate.save(date);        
       },
+       formatStringDate (date) {
+        if (!date) return null
+
+        const [year, month, day] = date.split('-')
+        return `${day}/${month}/${year}`
+      },
+
 
    
   }
