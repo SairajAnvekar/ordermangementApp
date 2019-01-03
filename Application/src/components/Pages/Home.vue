@@ -6,7 +6,7 @@
         <v-list>
           <v-layout row wrap header>
             <v-flex xs6>
-              <v-card color="blue-grey darken-2" class="white--text">
+              <v-card color="blue-grey darken-2 h-100" class="white--text">
                 <v-card-title primary-title>
                   <div>
                     <div class="headline">Total Order for Today</div>
@@ -32,8 +32,7 @@
                   </div>
 
                 </v-card-title>
-                <v-card-text class="align-left">
-
+                <v-card-text class="align-left left-align">
                   <span class="headline">Cash : {{cashMode['Cash']}} </span>
                   <span class="headline">Cheque : {{cashMode['Cheque'] || 0 }} </span> 
                   <span class="headline">Card : {{cashMode['Card'] || 0 }} </span>
@@ -122,3 +121,8 @@
   }
 
 </script>
+<style>
+.align-left{
+  text-align: left;
+}
+</style>

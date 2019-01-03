@@ -663,7 +663,7 @@
     },
     methods: {
       reset() {
-        this.$refs.form.reset();
+        this.$refs.form.reset();        
       },
       saveDate(date) {
         this.$refs.menu.save(date);
@@ -698,6 +698,7 @@
 
       addOrder() {
         this.setDefaut();
+         this.formatedDeliveryDate= moment().format('DD-MM-YYYY');
         this.createOrderDialog = true;
         this.statusItem[1].disabled = true;
         this.view = false;
@@ -723,7 +724,8 @@
               console.log(data)
               this.order = data.data;
               this.order.delivery_date = this.order.delivery_date ? moment(new DateOnly(this.order.delivery_date)).format(
-                'DD-MM-YYYY') : "";
+                'YYYY-MM-DD') : "";
+              this.formatedDeliveryDate = this.formatStringDate(this.order.delivery_date);  
               this.calculateBalance();
               this.getAllOrder();
               this.processing = false;
