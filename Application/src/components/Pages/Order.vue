@@ -296,7 +296,7 @@
                 </tr>
                 <tr>
                   <td colspan="3">
-                    Tax( {{order.tax}})
+                    Tax({{order.tax}} % )
                   </td>
                   <td>{{ order.taxAmt }}</td>
                 </tr>
