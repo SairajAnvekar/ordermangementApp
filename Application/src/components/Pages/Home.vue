@@ -2,46 +2,44 @@
   <v-content>
     <v-layout>
       <app-header></app-header>
-      <v-container>
-        <v-list>
-          <v-layout row wrap header>
+      <v-container grid-list-md text-xs-center>
+    
+          <v-layout row wrap > 
             <v-flex xs6>
-              <v-card color="blue-grey darken-2 h-100" class="white--text">
-                <v-card-title primary-title>
-                  <div>
+              <v-card dark color="blue-grey darken-2 h-100" >
+                  <v-card-text class="px-0">
                     <div class="headline">Total Order for Today</div>
                     <span>
                       <h1>{{totalOrders}}</h1>
                     </span>
-                  </div>
-                </v-card-title>
-                 <v-card-text class="align-left">
-                  <br> 
-                </v-card-text>
-
+                  </v-card-text>
               </v-card>
             </v-flex>
             <v-flex xs6>
-              <v-card color="blue-grey darken-2" class="white--text">
-                <v-card-title primary-title>
-                  <div>
+              <v-card dark color="blue-grey darken-2 h-100" >
+                  <v-card-text class="px-0">
                     <div class="headline">Total Payment Today</div>
                     <span>
-                      <h1>{{totalPayment}}</h1>
+                       <h1>{{totalPayment}}</h1>
                     </span>
-                  </div>
-
-                </v-card-title>
-                <v-card-text class="align-left left-align">
-                  <span class="headline">Cash : {{cashMode['Cash']}} </span>
-                  <span class="headline">Cheque : {{cashMode['Cheque'] || 0 }} </span> 
-                  <span class="headline">Card : {{cashMode['Card'] || 0 }} </span>
-
-                </v-card-text>
+                      <span class="mode"><b>Cash :</b> {{cashMode['Cash']}} </span>
+                  <span  class="mode" ><b>Cheque :</b> {{cashMode['Cheque'] || 0 }} </span> 
+                  <span  class="mode"><b>Card : </b>{{cashMode['Card'] || 0 }} </span>
+                  </v-card-text>
               </v-card>
             </v-flex>
+ 
+             <v-flex xs12>
+              <v-card>
+                <v-img  class="c-image" src="/static/img/lorenz-studio.384e64b.jpg" height="400" contains ></v-img>
+              </v-card>
+            </v-flex> 
+            
+           
           </v-layout>
-        </v-list>
+
+ 
+        
       </v-container>
       <app-footer></app-footer>
     </v-layout>
@@ -51,6 +49,8 @@
   import Axios from 'axios'
   import Authentication from '@/components/pages/Authentication'
   import APIurlConfig from '../../apiConfig'
+ 
+
   const apiURL = APIurlConfig.API_URL // 'http://localhost:3001'
   export default {
     data() {
@@ -124,5 +124,11 @@
 <style>
 .align-left{
   text-align: left;
+}
+.v-image__image--cover{
+  background-size: 100% 100% !important;
+}
+.mode{
+  font-size: 18px;
 }
 </style>

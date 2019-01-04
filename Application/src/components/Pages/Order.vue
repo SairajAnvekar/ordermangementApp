@@ -261,8 +261,8 @@
                 <tr>
                   <td> Sr </td>
                   <td>Product</td>
-                  <td> Qty </td>
-                  <td> Amount</td>
+                  <td align="right"> Qty </td>
+                  <td align="right" > Amount</td>
                 </tr>
               </thead>
               <tbody>
@@ -270,8 +270,8 @@
                 <tr v-for="(order, index) in order.orderDetails" :key="index">
                   <td valign="top" >{{index + 1}}</td>
                   <td valign="top" ><span >{{order.productName}}</span> <span  v-if="order.hasSize">({{order.size.height}} *  {{order.size.width}})</span></td>
-                  <td valign="top" >{{order.qty}}</td>
-                  <td valign="top" >{{order.amt}}</td>
+                  <td valign="top" align="right" >{{order.qty}}</td>
+                  <td valign="top" align="right" >{{order.amt}}</td>
                 </tr>
                 <td colspan="4" style="border-top: 1px solid;"></td>
               </tbody>
@@ -914,8 +914,7 @@
             this.calculateBalance();
             this.calculateTotalItem();
            
-            this.statusItem[1].disabled = false;
-            this.view = false;
+            this.statusItem[1].disabled = false;    
             /////
             const netPay = this.order.grand_total - this.order.paid_amount;
             this.order.net_payable = Math.round(netPay);
@@ -1088,10 +1087,10 @@
         mywindow.document.write(content);
         mywindow.document.write('</body></html>');
 
-        mywindow.document.close();
+       // mywindow.document.close();
         mywindow.focus()
         mywindow.print();
-        mywindow.close();
+        //mywindow.close();
         return true;
       }
 
@@ -1121,7 +1120,7 @@
   }
 
   .order .v-input input {
-    max-height: 27px;
+    max-height: 34px;
   }
 
   .order .input__control {

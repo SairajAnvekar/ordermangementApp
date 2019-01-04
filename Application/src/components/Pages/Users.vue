@@ -115,10 +115,10 @@
               <td>{{ props.item.email }}</td>
               <td>{{ props.item.role.toUpperCase() }}</td>
               <td class="text-xs-center">
-                <v-btn v-on:click="editEmploye(props.item)" outline fab small color="indigo">
+                <v-btn v-on:click="editEmploye(props.item)" outline fab small  color="white">
                   <v-icon>edit</v-icon>
                 </v-btn>
-                <v-btn v-on:click="confirmDelete(props.item)" outline fab small color="indigo">
+                <v-btn v-on:click="confirmDelete(props.item)" outline fab small color="white">
                   <v-icon>remove</v-icon>
                 </v-btn>
               </td>
