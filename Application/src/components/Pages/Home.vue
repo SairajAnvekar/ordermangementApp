@@ -30,9 +30,10 @@
             </v-flex>
  
              <v-flex xs12>
-              <v-card>
-                <v-img  class="c-image" src="/static/img/lorenz-studio.384e64b.jpg" height="400" contains ></v-img>
+              <v-card>                
+              <img src='@/assets/lorenz-studio.jpg' width='100%' height=400>
               </v-card>
+              
             </v-flex> 
             
            
