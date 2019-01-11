@@ -234,7 +234,7 @@
                   <td colspan="4"> BEHIND MUNCIPAL BLDG</td>
                 </tr>
                 <tr>
-                  <td colspan="4"> MARGAO - 40601 GOA PH:732892</td>
+                  <td colspan="4"> MARGAO - 40601 GOA PH:2732892</td>
                 </tr>
                 <tr>
                   <td colspan="4" style="border-top: 1px solid;"></td>
@@ -242,17 +242,21 @@
               </thead>
               <tr><td colspan="4"><span v-if="order.status== 'delivered'"> Invoice Copy</span><span v-else>Job Order</span></td></tr>
               <tr><td colspan="4" style="border-top: 1px solid;"></td></tr>
-              <tr style="font-size:13px">
+              <tr style="font-size:15px">
                 <td>Order No</td>
-                <td> {{order.order_no}}</td>
+                <td> {{order.order_no}}123124</td>
                 <td>O. Date</td>
                 <td>{{formateDate(order.order_date)}}</td>
               </tr>
-              <tr style="font-size:13px">
-                <td>Cust.Name</td>
-                <td>{{order.customer_name}}</td>
+              <tr style="font-size:15px">
+                <td></td>
+                <td></td>
                 <td><span v-if="order.status== 'delivered'"> Delivered D.</span><span v-else>Delivery D.</span></td>
                  <td>{{formatedDeliveryDate}}</td>
+              </tr>
+              <tr style="font-size:15px">
+                <td>Cust.Name</td>
+                <td  colspan="4" style="text-align:left">{{order.customer_name}}</td>
               </tr>
              <tr><td colspan="4" style="border-top: 1px solid;"></td></tr>
             </table>         
@@ -271,7 +275,7 @@
                   <td valign="top" >{{index + 1}}</td>
                   <td valign="top" ><span >{{order.productName}}</span> <span  v-if="order.hasSize">({{order.size.height}} *  {{order.size.width}})</span></td>
                   <td valign="top" align="right" >{{order.qty}}</td>
-                  <td valign="top" align="right" >{{order.amt}}</td>
+                  <td valign="top" align="right" >{{toFixed(order.amt)}}</td>
                 </tr>
                 <td colspan="4" style="border-top: 1px solid;"></td>
               </tbody>
@@ -286,45 +290,50 @@
                 </tr>
                 <tr>
                   <td colspan="3">Amount</td>
-                  <td colspan="1">{{ order.total }}</td>
+                  <td colspan="1" align="right">{{ order.total }}</td>
                 </tr>
                  <tr v-if="order.discount_amt > 0 ">
                   <td colspan="3">
                     Discount
                   </td>
-                  <td>{{ order.discount_amt }}</td>
+                  <td align="right" >{{ toFixed(order.discount_amt) }}</td>
                 </tr>
                 <tr>
                   <td colspan="3">
                     Tax({{order.tax}} % )
                   </td>
-                  <td>{{ order.taxAmt }}</td>
+                  <td align="right">{{ toFixed(order.taxAmt) }}</td>
                 </tr>
                 <tr>
                   <td colspan="3"><strong>Total Amount</strong></td>
-                  <td class="text-xs-right">{{ order.grand_total }}</td>
+                  <td align="right" class="text-xs-right">{{ toFixed(order.grand_total) }}</td>
                 </tr>
                 <tr>
                   <td colspan="3"><strong>Paid Amount</strong></td>
-                  <td class="text-xs-right">{{ order.paid_amount }}</td>
+                  <td  align="right" class="text-xs-right">{{toFixed(order.paid_amount) }}</td>
                 </tr>
                 <tr>
 
                   <td colspan="3" class="text-xs-right"><strong>Rounding Off</strong></td>
-                  <td class="text-xs-right">{{ order.roundOff }}</td>
+                  <td align="right" class="text-xs-right">{{ order.roundOff }}</td>
 
                 </tr>
                 <tr>
 
                   <td colspan="3"><strong>Payable Amount</strong></td>
-                  <td class="text-xs-right">{{ order.net_payable }}</td>
+                  <td align="right" class="text-xs-right">{{ toFixed(order.net_payable) }}</td>
                 </tr>
                 <td colspan="8" style="border-top: 1px solid;"></td>
 
               </tfoot>
             </table>
-            <small>Prepared By : {{order.created_user}}</small>
-            
+          <small>Prepared By : {{order.created_user}}</small><br>
+          <small>GST NO: 30AABFL8379E1ZF</small>  <hr>     
+            <div style="font-size: 11px" > NOTE:<br>
+            COLLECT YOUR ORDER WITHIN 30 DAYS.
+            COMPOSITION TAXABLE PERSON NOT ELIGIBLE TO COLLECT TAX ON SUPPLIES 
+            </div>
+            <div style="text-align:center"> THANK YOU VISIT AGAIN</div>
           </div>
         </div>
         </div>
@@ -835,7 +844,7 @@
           total = element.amt ? total + element.amt : total;
         });
         this.order.items= totalItem;
-        this.order.total = total;
+        this.order.total = this.roundToTwo(total);
         this.calculateTax();
       },
 
@@ -1074,6 +1083,11 @@
 
         const [year, month, day] = date.split('-')
         return `${day}/${month}/${year}`
+      },
+
+
+      toFixed(number){
+        return parseFloat(number).toFixed(2);
       },
 
       printElem() {
