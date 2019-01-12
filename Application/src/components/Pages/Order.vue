@@ -99,7 +99,7 @@
                             <v-text-field v-model="props.item.qty" :readonly="view" min=0 type="number" @input="calculateAmount(props.item)"></v-text-field>
                           </td>
                           <td>
-                            <v-text-field v-model="props.item.amt" :readonly="view"></v-text-field>
+                            <v-text-field v-model="props.item.amt" readonly=true></v-text-field>
                           </td>
                           <td>
                             <v-btn fab :disabled="view" color="indigo" small @click.native="removeItem(props.index)">
@@ -244,7 +244,7 @@
               <tr><td colspan="4" style="border-top: 1px solid;"></td></tr>
               <tr style="font-size:15px">
                 <td>Order No</td>
-                <td> {{order.order_no}}123124</td>
+                <td> {{order.order_no}}</td>
                 <td>O. Date</td>
                 <td>{{formateDate(order.order_date)}}</td>
               </tr>
