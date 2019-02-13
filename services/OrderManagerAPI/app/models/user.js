@@ -25,7 +25,7 @@ const Schema = mongoose.Schema({
   position: String,
   role: {
     type: String,
-    enum: ['admin', 'manager', 'employe'],
+    enum: ['admin', 'manager', 'employe','accountant'],
     default: 'employe',
   },
     clients: [{}]

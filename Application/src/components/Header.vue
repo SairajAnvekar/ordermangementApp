@@ -21,7 +21,7 @@
             </v-list-tile-content>
           </v-list-tile>  
 
-          <v-list-tile :class="$route.path==`/product`?'highlight':''" @click="goToLink(`/product`)">
+          <v-list-tile   v-if="role =='admin' || role =='employe'" :class="$route.path==`/product`?'highlight':''" @click="goToLink(`/product`)">
             <v-list-tile-action>
               <v-icon>weekend</v-icon>
             </v-list-tile-action>
@@ -30,7 +30,7 @@
             </v-list-tile-content>
           </v-list-tile>  
 
-             <v-list-tile  :class="$route.path==`/order`?'highlight':''" @click="goToLink(`/order`)">
+             <v-list-tile  v-if="role =='admin' || role =='employe'" :class="$route.path==`/order`?'highlight':''" @click="goToLink(`/order`)">
             <v-list-tile-action>
               <v-icon>weekend</v-icon>
             </v-list-tile-action>
@@ -39,7 +39,7 @@
             </v-list-tile-content>
           </v-list-tile>
 
-          <v-list-tile  v-if="role =='admin'"   :class="$route.path==`/orderReport`?'highlight':''" @click="goToLink(`/orderReport`)">
+          <v-list-tile  v-if="role =='admin' || role =='accountant'"   :class="$route.path==`/orderReport`?'highlight':''" @click="goToLink(`/orderReport`)">
             <v-list-tile-action>
               <v-icon>weekend</v-icon>
             </v-list-tile-action>
@@ -49,7 +49,7 @@
           </v-list-tile>
 
           
-          <v-list-tile  v-if="role =='admin'"  :class="$route.path==`/paymentReport`?'highlight':''" @click="goToLink(`/paymentReport`)">
+          <v-list-tile v-if="role =='admin' || role =='accountant'"  :class="$route.path==`/paymentReport`?'highlight':''" @click="goToLink(`/paymentReport`)">
             <v-list-tile-action>
               <v-icon>weekend</v-icon>
             </v-list-tile-action>

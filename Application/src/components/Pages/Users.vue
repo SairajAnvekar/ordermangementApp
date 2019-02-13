@@ -73,7 +73,16 @@
                       <v-list-tile-sub-title>users</v-list-tile-sub-title>
                     </v-list-tile-content>
                   </v-list-tile>
-
+                  
+                  <v-list-tile avatar>
+                    <v-list-tile-action>
+                      <v-radio :value="`accountant`"></v-radio>
+                    </v-list-tile-action>
+                    <v-list-tile-content>
+                      <v-list-tile-title>Accountant</v-list-tile-title>
+                      <v-list-tile-sub-title>Accountant </v-list-tile-sub-title>
+                    </v-list-tile-content>
+                  </v-list-tile>
 
 
                   <v-list-tile avatar>

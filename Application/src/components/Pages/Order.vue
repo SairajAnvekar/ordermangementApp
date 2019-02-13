@@ -58,7 +58,7 @@
 
 
                     <v-flex xs12 sm6 md3>
-                      <v-select :items="statusItem" :readonly="isStatusReadOnly" ref="status" required label="Status"
+                      <v-select :items="statusItem"  ref="status" required label="Status"
                         v-model="order.status" :rules="[rules.required]"></v-select>
                     </v-flex>
 
@@ -486,10 +486,10 @@
           disabled: false
         }, {
           text: 'ready',
-          disabled: true
+          disabled: false
         }, {
           text: 'delivered',
-          disabled: true
+          disabled: false
         }],
         paymentType: ['Cash', 'Card', 'Cheque'],
         paymentHeaders: [ 
@@ -708,8 +708,7 @@
       addOrder() {
         this.setDefaut();
          this.formatedDeliveryDate= moment().format('DD-MM-YYYY');
-        this.createOrderDialog = true;
-        this.statusItem[1].disabled = true;
+        this.createOrderDialog = true;       
         this.view = false;
         this.addNew = true;
         var self = this;
@@ -1009,7 +1008,9 @@
                 this.calculateBalance();
                 console.log(this.order.balance);
                 if (this.order.balance == 0) {
-                  this.order.status = "delivered";
+                  if(check3)
+                    this.order.status = "delivered";
+
                   this.order.delivery_date = new Date().toISOString().substr(0, 10);
                 }
                 this.saveOrUpdate();
